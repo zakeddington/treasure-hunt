@@ -1,0 +1,22 @@
+.scoreboard {
+	background: var(--color-bg-secondary);
+	border-radius: var(--radius-xs);
+	list-style: none;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+}
+
+.scoreboard--item {
+	display: flex;
+	justify-content: space-between;
+	padding: var(--spacing-sm);
+
+	&:nth-child(odd) {
+		background: var(--color-bg-secondary);
+	}
+
+	&.current-player {
+		font-weight: var(--font-weight-bold);
+	}
+}

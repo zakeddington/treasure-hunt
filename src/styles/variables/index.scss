@@ -1,0 +1,61 @@
+// Root CSS Variables
+:root {
+	// Colors
+	--color-bg-primary: #0b1020;
+	--color-bg-secondary: rgba(255, 255, 255, 0.08);
+	--color-text-primary: #fff;
+	--color-text-secondary: #ddd;
+	--color-card: rgba(255, 255, 255, 0.08);
+	--color-card2: rgba(255, 255, 255, 0.12);
+	--color-border: rgba(255, 255, 255, 0.14);
+
+	--color-btn-primary-bg-default: rgba(255, 255, 255, 0.45);
+	--color-btn-primary-bg-hover: rgba(255, 255, 255, 0.15);
+	--color-btn-primary-border-default: rgba(255, 255, 255, 0.45);
+	--color-btn-primary-border-hover: rgba(255, 255, 255, 0.15);
+	--color-btn-primary-text-default: var(--color-text-primary);
+	--color-btn-primary-text-hover: var(--color-text-primary);
+
+	--color-btn-secondary-bg-default: rgba(255, 255, 255, 0.15);
+	--color-btn-secondary-bg-hover: rgba(255, 255, 255, 0.30);
+	--color-btn-secondary-border-default: rgba(255, 255, 255, 0.15);
+	--color-btn-secondary-border-hover: rgba(255, 255, 255, 0.30);
+	--color-btn-secondary-text-default: var(--color-text-primary);
+	--color-btn-secondary-text-hover: var(--color-text-primary);
+
+	// Spacing
+	--spacing-xxs: 4px;
+	--spacing-xs: 8px;
+	--spacing-sm: 10px;
+	--spacing-md: 12px;
+	--spacing-lg: 14px;
+	--spacing-xl: 16px;
+
+	// Border radius
+	--radius-xs: 8px;
+	--radius-sm: 12px;
+	--radius-md: 16px;
+	--radius-lg: 18px;
+	--radius-full: 999px;
+
+	// Typography
+	--font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+	--font-size-text-xlarge: 1.5rem;
+	--font-size-text-large: 1.125rem;
+	--font-size-text-default: 1rem;
+	--font-size-text-small: 0.75rem;
+
+	--font-line-height-text-default: 1.625;
+
+	--font-weight-normal: 400;
+	--font-weight-bold: 700;
+
+	--anim-speed-fast: 150ms;
+	--anim-speed: 300ms;
+	--anim-speed-slow: 500ms;
+	--anim-speed-slower: 800ms;
+	--anim-speed-slowest: 1000ms;
+
+	--anim-ease: ease-out;
+}

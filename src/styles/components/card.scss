@@ -1,0 +1,23 @@
+.card {
+	background: var(--color-card);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-border);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-md);
+	padding: var(--spacing-md);
+
+	&--title {
+		color: var(--color-text-secondary);
+		font-weight: var(--font-weight-bold);
+		margin-bottom: var(--spacing-xs);
+	}
+
+	&--row {
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-xs);
+		margin-bottom: 10px;
+	}
+}

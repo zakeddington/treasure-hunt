@@ -1,0 +1,24 @@
+{
+  "name": "treasure-hunt",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/scripts/server.js",
+  "scripts": {
+    "start": "npm run build && node src/scripts/server.js",
+    "dev": "npx concurrently \"sass src/styles/style.scss public/assets/styles/style.css --watch\" \"nodemon --watch src/scripts -e js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js\\\"\" \"nodemon --watch src/scripts/server.js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/server.js public/assets/scripts/server.js\\\"\" \"nodemon src/scripts/server.js\"",
+    "build:css": "sass src/styles/style.scss public/assets/styles/style.css",
+    "build:js": "mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js && cp src/scripts/server.js public/assets/scripts/server.js",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "optionalDependencies": {
+    "sass": "^1.77.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11",
+    "concurrently": "^8.2.2"
+  }
+}

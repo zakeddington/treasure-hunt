@@ -1,0 +1,33 @@
+body {
+	background: radial-gradient(
+		1200px 700px at 20% 10%,
+		#233a7a 0%,
+		var(--color-bg-primary) 55%
+	);
+}
+
+.site-header {
+	align-items: center;
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--color-border);
+	display: flex;
+	justify-content: space-between;
+	padding: var(--spacing-lg) var(--spacing-xl);
+
+	&--content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-xxs);
+	}
+}
+
+.site-content {
+	display: grid;
+	gap: var(--spacing-md);
+	grid-template-columns: 1fr 1fr;
+	padding: var(--spacing-md);
+
+	@media (max-width: 900px) {
+		grid-template-columns: 1fr;
+	}
+}
