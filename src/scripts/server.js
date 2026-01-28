@@ -21,8 +21,6 @@ const state = {
   roundEndsAt: null
 };
 
-console.log('state', state);
-
 function playersList() {
   return Array.from(state.players.entries()).map(([id, p]) => ({
     id,
@@ -166,5 +164,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Treasure Tap Race running on http://0.0.0.0:${PORT}`);
+  console.log(`Treasure Hunt running on http://0.0.0.0:${PORT}`);
 });

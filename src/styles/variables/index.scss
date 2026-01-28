@@ -1,8 +1,12 @@
+$breakpoint-desktop: 900px;
+
 // Root CSS Variables
 :root {
 	// Colors
 	--color-bg-primary: #0b1020;
 	--color-bg-secondary: rgba(255, 255, 255, 0.08);
+	--color-gradient-primary: radial-gradient(1200px 700px at 20% 10%, #233a7a 0%, var(--color-bg-primary) 55%);
+	--color-gradient-secondary: radial-gradient(900px 600px at 70% 20%, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.08));
 	--color-text-primary: #fff;
 	--color-text-secondary: #ddd;
 	--color-card: rgba(255, 255, 255, 0.08);
