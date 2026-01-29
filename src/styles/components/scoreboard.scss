@@ -1,6 +1,4 @@
 .scoreboard {
-	background: var(--color-bg-secondary);
-	border-radius: var(--radius-xs);
 	list-style: none;
 	margin: 0;
 	overflow: hidden;
@@ -8,12 +6,13 @@
 }
 
 .scoreboard--item {
+	background: var(--color-bg-opacity-med);
 	display: flex;
 	justify-content: space-between;
-	padding: var(--spacing-sm);
+	padding: var(--spacing-xs) var(--spacing-sm);
 
 	&:nth-child(odd) {
-		background: var(--color-bg-secondary);
+		background: var(--color-bg-opacity-light);
 	}
 
 	&.current-player {

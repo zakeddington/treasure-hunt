@@ -12,33 +12,32 @@
 			<h1>🏴‍☠️ Treasure Hunt</h1>
 			<div class="text-size-small text-color-secondary">Tap the treasure before anyone else!</div>
 		</div>
-		<div class="text-size-large" id="statusLabel">Lobby</div>
 	</header>
 
 	<main class="site-content">
 		<div class="row">
 			<section class="card">
 				<div class="card--row">
-					<label class="form-label" for="nameInput">Name</label>
-					<input id="nameInput" class="form-input" maxlength="16" placeholder="e.g. Zak" />
-					<button id="joinBtn" class="btn btn-secondary">Join</button>
+					<input id="nameInput" class="form-input" maxlength="16" placeholder="Enter Your Name" />
+					<button id="joinBtn" class="btn btn-secondary">Join Game</button>
 				</div>
 
 				<div class="card--row">
-					<button id="startBtn" class="btn btn-primary">Start Game</button>
 					<button id="resetBtn" class="btn btn-secondary">Reset Scores</button>
-				</div>
-
-				<div class="card--row">
-					<div id="hintText" class="text-size-small text-color-secondary">Join the game to start!</div>
+					<button id="startBtn" class="btn btn-primary">Start Game</button>
 				</div>
 			</section>
 
 			<section class="card">
 				<div class="card--title">Scoreboard</div>
 				<ul id="scoreboard" class="scoreboard"></ul>
-				<div>Round: <span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
 			</section>
+		</div>
+
+		<div class="game-status-bar row">
+			<div id="hintText" class="text-color-secondary">Join the game to start!</div>
+			<div class="text-size-large" id="statusLabel">Lobby</div>
+			<div>Round: <span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
 		</div>
 
 		<section class="arenaWrap">

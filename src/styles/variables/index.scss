@@ -1,39 +1,69 @@
 $breakpoint-desktop: 900px;
 
-// Root CSS Variables
 :root {
-	// Colors
-	--color-bg-primary: #0b1020;
-	--color-bg-secondary: rgba(255, 255, 255, 0.08);
-	--color-gradient-primary: radial-gradient(1200px 700px at 20% 10%, #233a7a 0%, var(--color-bg-primary) 55%);
-	--color-gradient-secondary: radial-gradient(900px 600px at 70% 20%, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.08));
-	--color-text-primary: #fff;
-	--color-text-secondary: #ddd;
-	--color-card: rgba(255, 255, 255, 0.08);
-	--color-card2: rgba(255, 255, 255, 0.12);
-	--color-border: rgba(255, 255, 255, 0.14);
+	// Color Palette
+	--color-palette-blue-100: #c9d5d4;
 
-	--color-btn-primary-bg-default: rgba(255, 255, 255, 0.45);
-	--color-btn-primary-bg-hover: rgba(255, 255, 255, 0.15);
-	--color-btn-primary-border-default: rgba(255, 255, 255, 0.45);
-	--color-btn-primary-border-hover: rgba(255, 255, 255, 0.15);
-	--color-btn-primary-text-default: var(--color-text-primary);
-	--color-btn-primary-text-hover: var(--color-text-primary);
+	--color-palette-blue-300: #3d89a8;
+	--color-palette-blue-500: #276278;
+	--color-palette-blue-800: #1F4E79;
 
-	--color-btn-secondary-bg-default: rgba(255, 255, 255, 0.15);
-	--color-btn-secondary-bg-hover: rgba(255, 255, 255, 0.30);
-	--color-btn-secondary-border-default: rgba(255, 255, 255, 0.15);
-	--color-btn-secondary-border-hover: rgba(255, 255, 255, 0.30);
-	--color-btn-secondary-text-default: var(--color-text-primary);
-	--color-btn-secondary-text-hover: var(--color-text-primary);
+	--color-palette-red-300: #E63946;
+	--color-palette-red-500: #c31317;
+	--color-palette-red-800: #7f0910;
+
+	--color-palette-yellow-300: #ffe99a;
+	--color-palette-yellow-500: #F4D35E;
+	--color-palette-yellow-800: #d29f3a;
+
+	--color-palette-black: #111010;
+	--color-palette-gray-500: #454545;
+	--color-palette-white: #ffffff;
+
+	// Color Tokens
+	--color-bg-primary: var(--color-palette-blue-800);
+	--color-bg-secondary: var(--color-palette-blue-300);
+	--color-bg-opacity-light: rgba(0, 0, 0, 0.25);
+	--color-bg-opacity-med: rgba(0, 0, 0, 0.5);
+
+	--color-text-primary: var(--color-palette-white);
+	--color-text-secondary: rgba(255, 255, 255, 0.75);
+
+	--color-btn-primary-bg-default: var(--color-palette-yellow-500);
+	--color-btn-primary-bg-hover: var(--color-palette-yellow-800);
+	--color-btn-primary-border-default: transparent;
+	--color-btn-primary-border-hover: transparent;
+	--color-btn-primary-text-default: var(--color-palette-black);
+	--color-btn-primary-text-hover: var(--color-palette-black);
+
+	--color-btn-secondary-bg-default: var(--color-bg-opacity-med);
+	--color-btn-secondary-bg-hover: var(--color-bg-opacity-light);
+	--color-btn-secondary-border-default: transparent;
+	--color-btn-secondary-border-hover: transparent;
+	--color-btn-secondary-text-default: var(--color-palette-white);
+	--color-btn-secondary-text-hover: var(--color-palette-white);
+
+	--color-form-input-bg: var(--color-bg-opacity-light);
+	--color-form-input-placeholder: var(--color-text-secondary);
+
+	// Shapes
+	--color-shape-bg: var(--color-palette-black);
+	--color-shape-border: var(--color-palette-yellow-800);
+	--shape-border-width: 3px;
+	--shape-offset: 10px;
+
+	@media (min-width: $breakpoint-desktop) {
+		--shape-border-width: 6px;
+		--shape-offset: 20px;
+	}
 
 	// Spacing
 	--spacing-xxs: 4px;
 	--spacing-xs: 8px;
-	--spacing-sm: 10px;
-	--spacing-md: 12px;
-	--spacing-lg: 14px;
-	--spacing-xl: 16px;
+	--spacing-sm: 16px;
+	--spacing-md: 24px;
+	--spacing-lg: 32px;
+	--spacing-xl: 40px;
 
 	// Border radius
 	--radius-xs: 8px;
@@ -45,7 +75,7 @@ $breakpoint-desktop: 900px;
 	// Typography
 	--font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-	--font-size-text-xlarge: 1.5rem;
+	--font-size-text-xlarge: 2rem;
 	--font-size-text-large: 1.125rem;
 	--font-size-text-default: 1rem;
 	--font-size-text-small: 0.75rem;
@@ -55,6 +85,7 @@ $breakpoint-desktop: 900px;
 	--font-weight-normal: 400;
 	--font-weight-bold: 700;
 
+	// Animation
 	--anim-speed-fast: 150ms;
 	--anim-speed: 300ms;
 	--anim-speed-slow: 500ms;
@@ -62,4 +93,7 @@ $breakpoint-desktop: 900px;
 	--anim-speed-slowest: 1000ms;
 
 	--anim-ease: ease-out;
+
+	// Z-Index
+	--z-index-default: 1;
 }

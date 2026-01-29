@@ -1,7 +1,7 @@
 @use '../variables';
 
 body {
-	background: var(--color-gradient-primary);
+	background: linear-gradient(to bottom, var(--color-bg-primary), var(--color-bg-secondary));
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -9,13 +9,12 @@ body {
 
 .site-header {
 	align-items: center;
-	backdrop-filter: blur(8px);
-	border-bottom: 1px solid var(--color-border);
 	display: flex;
-	justify-content: space-between;
-	padding: var(--spacing-lg) var(--spacing-xl);
+	justify-content: center;
+	padding: var(--spacing-md);
 
 	&--content {
+		align-items: center;
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-xxs);
