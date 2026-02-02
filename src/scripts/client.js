@@ -219,12 +219,12 @@ const ClientApp = {
 
 		if (isSinglePlayer) {
 			this.setBanner(`Final Score: ${winner.score}`, true, true);
-			this.el.hintText.textContent = 'Press Reset Scores to play again!';
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
 			this.setBanner(`${medal} ${this.escapeHtml(winner.name)} wins!`, true, true);
-			this.el.hintText.textContent = `Final: ${winner.name} - ${winner.score}`;
 		}
+
+		this.el.hintText.textContent = 'Press Start to play again!';
 	},
 
 	addEventListeners() {
