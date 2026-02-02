@@ -1,21 +1,22 @@
 .game-status-bar {
 	align-items: center;
-	justify-content: space-between;
-}
-
-.arenaWrap {
-	display: flex;
-	flex-direction: column;
+	background: var(--color-bg-secondary);
+	border: var(--shape-border-width) solid var(--color-shape-border);
 	flex: 1;
+	font-weight: var(--font-weight-bold);
+	gap: var(--spacing-sm);
+	justify-content: space-between;
+	padding: var(--spacing-sm);
 }
 
-.arena {
+.game-board {
 	background: var(--color-shape-border);
 	clip-path: polygon(0 0,100% var(--shape-offset),calc(100% - var(--shape-offset)) 100%,var(--shape-offset) 100%);
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	height: min(70vh, 520px);
+	max-height: 90vh;
+	max-width: 100vw;
 	overflow: hidden;
 	position: relative;
 	touch-action: manipulation;
@@ -31,21 +32,38 @@
 		top: 0;
 		width: 100%;
 	}
+
+	&--container {
+		display: block;
+		height: 100%;
+		overflow: auto;
+		position: relative;
+		width: 100%;
+		z-index: var(--z-index-default);
+	}
+
+	&--content {
+		width: 3000px;
+	}
+
+	&--image {
+		display: block;
+		margin: 0;
+	}
 }
 
 .treasure {
 	align-items: center;
-	background: rgba(255, 255, 255, 0.14);
-	border-radius: 24px;
-	border: 2px solid rgba(255, 255, 255, 0.26);
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+	background: var(--color-bg-opacity-dark);
+	border: 2px solid var(--color-bg-secondary);
+	border-radius: var(--radius-full);
 	display: flex;
-	font-size: 44px;
-	height: 90px;
+	font-size: var(--font-size-text-xlarge);
+	height: calc(var(--font-size-text-xlarge) * 2);
 	justify-content: center;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: 90px;
+	width: calc(var(--font-size-text-xlarge) * 2);
 	z-index: var(--z-index-default);
 
 	&:active {
@@ -54,14 +72,13 @@
 }
 
 .banner {
-	background: rgba(0, 0, 0, 0.36);
-	border-radius: var(--radius-full);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	font-weight: var(--font-weight-black);
+	background: var(--color-bg-opacity-dark);
+	border: var(--shape-border-width) solid var(--color-bg-secondary);
+	font-weight: var(--font-weight-bold);
 	left: 50%;
 	padding: var(--spacing-sm) var(--spacing-lg);
 	position: absolute;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	z-index: 10;
+		z-index: var(--z-index-above-default);
 }

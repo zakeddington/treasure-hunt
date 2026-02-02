@@ -5,10 +5,11 @@
   "main": "src/scripts/server.js",
   "scripts": {
     "start": "npm run build && node src/scripts/server.js",
-    "dev": "npx concurrently \"sass src/styles/style.scss public/assets/styles/style.css --watch\" \"nodemon --watch src/scripts -e js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js\\\"\" \"nodemon --watch src/scripts/server.js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/server.js public/assets/scripts/server.js\\\"\" \"nodemon src/scripts/server.js\"",
+    "dev": "npx concurrently \"sass src/styles/style.scss public/assets/styles/style.css --watch\" \"nodemon --watch src/scripts -e js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js\\\"\" \"nodemon --watch src/scripts/server.js --exec \\\"mkdir -p public/assets/scripts && cp src/scripts/server.js public/assets/scripts/server.js\\\"\" \"nodemon --watch src/images --exec \\\"mkdir -p public/assets/images && cp -r src/images/* public/assets/images/\\\"\" \"nodemon src/scripts/server.js\"",
     "build:css": "sass src/styles/style.scss public/assets/styles/style.css",
     "build:js": "mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js && cp src/scripts/server.js public/assets/scripts/server.js",
-    "build": "npm run build:css && npm run build:js"
+    "build:images": "mkdir -p public/assets/images && cp -r src/images/* public/assets/images/",
+    "build": "npm run build:css && npm run build:js && npm run build:images"
   },
   "dependencies": {
     "express": "^4.19.2",

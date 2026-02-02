@@ -11,6 +11,7 @@ const ClientApp = {
 
 		this.classes = {
 			hidden: 'hidden',
+			fadingOut: 'fading-out',
 		}
 
 		this.el = {
@@ -19,7 +20,7 @@ const ClientApp = {
 			startBtn: document.getElementById('startBtn'),
 			resetBtn: document.getElementById('resetBtn'),
 			scoreBoard: document.getElementById('scoreboard'),
-			arena: document.getElementById('arena'),
+			gameBoard: document.getElementById('gameBoard'),
 			banner: document.getElementById('banner'),
 			statusLabel: document.getElementById('statusLabel'),
 			roundText: document.getElementById('roundText'),
@@ -30,6 +31,7 @@ const ClientApp = {
 		this.state = {
 			myId: null,
 			currentTreasureId: null,
+			bannerTimeoutId: null,
 		}
 	},
 
@@ -63,13 +65,33 @@ const ClientApp = {
 		this.el.startBtn.classList.remove(this.classes.hidden);
 	},
 
-	setBanner(msg, show = true) {
+	setBanner(msg, show = true, persist = false) {
+		// Cancel any pending fade-out
+		if (this.state.bannerTimeoutId) {
+			clearTimeout(this.state.bannerTimeoutId);
+			this.state.bannerTimeoutId = null;
+		}
+
 		this.el.banner.textContent = msg;
-		this.el.banner.classList.toggle(this.classes.hidden, !show);
+		this.el.banner.classList.remove(this.classes.hidden, this.classes.fadingOut);
+
+		if (show && !persist) {
+			// Schedule fade-out after 3 seconds (unless persisting)
+			this.state.bannerTimeoutId = setTimeout(() => {
+				this.el.banner.classList.add(this.classes.fadingOut);
+				// After fade completes, hide it
+				const fadeTimeout = setTimeout(() => {
+					this.el.banner.classList.add(this.classes.hidden);
+					this.state.bannerTimeoutId = null;
+				}, 300); // Match CSS transition duration
+			}, 3000);
+		} else if (!show) {
+			this.el.banner.classList.add(this.classes.hidden);
+		}
 	},
 
 	clearTreasure() {
-		const t = this.el.arena.querySelector('.treasure');
+		const t = this.el.gameBoard.querySelector('.treasure');
 		if (t) t.remove();
 		this.state.currentTreasureId = null;
 	},
@@ -87,12 +109,8 @@ const ClientApp = {
 		treasureEl.textContent = '💎';
 
 		// Compute pixel position from normalized coords
-		const rect = this.el.arena.getBoundingClientRect();
-		const minDim = Math.min(rect.width, rect.height);
-		const sizePx = Math.max(64, Math.floor(minDim * treasure.size));
+		const rect = this.el.gameBoard.getBoundingClientRect();
 
-		treasureEl.style.width = `${sizePx}px`;
-		treasureEl.style.height = `${sizePx}px`;
 		treasureEl.style.left = `${treasure.x * rect.width}px`;
 		treasureEl.style.top = `${treasure.y * rect.height}px`;
 
@@ -107,7 +125,7 @@ const ClientApp = {
 		treasureEl.addEventListener('click', tap, { passive: false });
 		treasureEl.addEventListener('touchstart', tap, { passive: false });
 
-		this.el.arena.appendChild(treasureEl);
+		this.el.gameBoard.appendChild(treasureEl);
 	},
 
 	handleStateUpdate(s) {
@@ -162,14 +180,14 @@ const ClientApp = {
 		this.hideResetButton();
 		this.showStartButton();
 		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
-		this.setBanner(hint, true);
+		this.setBanner(hint, true, true);
 		this.el.hintText.textContent = hint;
 	},
 
 	setPlayingState(players, treasure) {
 		this.showResetButton();
 		this.hideStartButton();
-		this.setBanner('Tap the treasure NOW!', true);
+		this.setBanner('Find the treasure NOW!', true);
 		const isSinglePlayer = players.length === 1;
 		this.el.hintText.textContent = isSinglePlayer ? 'Tap to earn points!' : 'First tap wins the point!';
 		this.placeTreasure(treasure);
@@ -200,11 +218,11 @@ const ClientApp = {
 		const isSinglePlayer = players.length === 1;
 
 		if (isSinglePlayer) {
-			this.setBanner(`Final Score: ${winner.score}`, true);
+			this.setBanner(`Final Score: ${winner.score}`, true, true);
 			this.el.hintText.textContent = 'Press Reset Scores to play again!';
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
-			this.setBanner(`${medal} ${this.escapeHtml(winner.name)} wins!`, true);
+			this.setBanner(`${medal} ${this.escapeHtml(winner.name)} wins!`, true, true);
 			this.el.hintText.textContent = `Final: ${winner.name} - ${winner.score}`;
 		}
 	},
