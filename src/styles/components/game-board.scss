@@ -61,20 +61,7 @@
 	left: 50%;
 	padding: var(--spacing-sm) var(--spacing-lg);
 	position: absolute;
-	top: 12px;
-	transform: translateX(-50%);
+	top: 50%;
+	transform: translate(-50%, -50%);
 	z-index: 10;
-}
-
-// Toast notifications
-.toast {
-	background: rgba(0, 0, 0, 0.52);
-	border-radius: var(--radius-full);
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	bottom: 16px;
-	font-weight: var(--font-weight-bold);
-	left: 50%;
-	padding: var(--spacing-sm) var(--spacing-md);
-	position: fixed;
-	transform: translateX(-50%);
 }

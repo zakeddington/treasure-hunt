@@ -23,7 +23,7 @@
 				</div>
 
 				<div class="card--row">
-					<button id="resetBtn" class="btn btn-secondary">Reset Scores</button>
+					<button id="resetBtn" class="btn btn-secondary hidden">Reset Game</button>
 					<button id="startBtn" class="btn btn-primary">Start Game</button>
 				</div>
 			</section>
@@ -35,9 +35,9 @@
 		</div>
 
 		<div class="game-status-bar row">
-			<div id="hintText" class="text-color-secondary">Join the game to start!</div>
-			<div class="text-size-large" id="statusLabel">Lobby</div>
-			<div>Round: <span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
+			<div id="hintText" class="column align-left">Join the game to start!</div>
+			<div id="statusLabel" class="column align-center text-size-large">Lobby</div>
+			<div class="column align-right">Round: <span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
 		</div>
 
 		<section class="arenaWrap">
@@ -46,8 +46,6 @@
 			</div>
 		</section>
 	</main>
-
-	<div id="toast" class="toast hidden"></div>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="assets/scripts/client.js"></script>

@@ -82,6 +82,7 @@ function scheduleNextRound() {
 		state.treasure = null;
 		state.winnerSocketId = null;
 		state.roundEndsAt = null;
+		state.round = state.maxRounds;
 		broadcastState();
 		return;
 	}
@@ -106,18 +107,12 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('start', () => {
-		if (state.phase !== 'lobby') return;
-		if (state.players.size < 1) {
-			socket.emit('toast', 'Join the game first.');
-			return;
-		}
 		resetScores();
 		state.round = 1;
 		spawnTreasure();
 	});
 
 	socket.on('reset', () => {
-		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
 		resetScores();
 		state.phase = 'lobby';
 		state.round = 0;

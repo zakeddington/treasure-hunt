@@ -38,3 +38,23 @@ body {
 		flex-direction: row;
 	}
 }
+
+.column {
+	display: flex;
+	flex: 1;
+	width: 100%;
+
+	@media (min-width: variables.$breakpoint-desktop) {
+		&.align-left {
+			justify-content: flex-start;
+		}
+
+		&.align-center {
+			justify-content: center;
+		}
+
+		&.align-right {
+			justify-content: flex-end;
+		}
+	}
+}

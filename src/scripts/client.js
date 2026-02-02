@@ -1,181 +1,242 @@
-const socket = io();
+const ClientApp = {
+	socket: io(),
 
-const el = (id) => document.getElementById(id);
+	init() {
+		this.initElements();
+		this.addEventListeners();
+		this.setupSocket();
+	},
 
-const nameInput = el('nameInput');
-const joinBtn = el('joinBtn');
-const startBtn = el('startBtn');
-const resetBtn = el('resetBtn');
+	initElements() {
 
-const scoreBoard = el('scoreboard');
-const arena = el('arena');
-const banner = el('banner');
-const toast = el('toast');
+		this.classes = {
+			hidden: 'hidden',
+		}
 
-const statusLabel = el('statusLabel');
-const roundText = el('roundText');
-const maxRoundsText = el('maxRoundsText');
-const hintText = el('hintText');
+		this.el = {
+			nameInput: document.getElementById('nameInput'),
+			joinBtn: document.getElementById('joinBtn'),
+			startBtn: document.getElementById('startBtn'),
+			resetBtn: document.getElementById('resetBtn'),
+			scoreBoard: document.getElementById('scoreboard'),
+			arena: document.getElementById('arena'),
+			banner: document.getElementById('banner'),
+			statusLabel: document.getElementById('statusLabel'),
+			roundText: document.getElementById('roundText'),
+			maxRoundsText: document.getElementById('maxRoundsText'),
+			hintText: document.getElementById('hintText'),
+		}
 
-let myId = null;
-let currentTreasureId = null;
+		this.state = {
+			myId: null,
+			currentTreasureId: null,
+		}
+	},
 
-function showToast(msg) {
-	toast.textContent = msg;
-	toast.classList.remove('hidden');
-	setTimeout(() => toast.classList.add('hidden'), 1800);
-}
+	setupSocket() {
+		this.socket.on('connect', () => {
+			this.state.myId = this.socket.id;
+			// auto-join with stored name if present
+			const saved = localStorage.getItem('ttr_name');
+			if (saved && saved.trim()) {
+				this.el.nameInput.value = saved;
+				this.socket.emit('join', saved);
+			}
+		});
 
-function setBanner(msg, show = true) {
-	banner.textContent = msg;
-	banner.classList.toggle('hidden', !show);
-}
+		this.socket.on('state', (s) => this.handleStateUpdate(s));
+	},
 
-function clearTreasure() {
-	const t = arena.querySelector('.treasure');
-	if (t) t.remove();
-	currentTreasureId = null;
-}
+	hideResetButton() {
+		this.el.resetBtn.classList.add(this.classes.hidden);
+	},
 
-function placeTreasure(treasure) {
-	clearTreasure();
-	if (!treasure) return;
+	showResetButton() {
+		this.el.resetBtn.classList.remove(this.classes.hidden);
+	},
 
-	currentTreasureId = treasure.id;
+	hideStartButton() {
+		this.el.startBtn.classList.add(this.classes.hidden);
+	},
 
-	const treasureEl = document.createElement('button');
-	treasureEl.className = 'treasure';
-	treasureEl.type = 'button';
-	treasureEl.setAttribute('aria-label', 'Treasure');
-	treasureEl.textContent = '💎';
+	showStartButton() {
+		this.el.startBtn.classList.remove(this.classes.hidden);
+	},
 
-	// Compute pixel position from normalized coords
-	const rect = arena.getBoundingClientRect();
-	const minDim = Math.min(rect.width, rect.height);
-	const sizePx = Math.max(64, Math.floor(minDim * treasure.size));
+	setBanner(msg, show = true) {
+		this.el.banner.textContent = msg;
+		this.el.banner.classList.toggle(this.classes.hidden, !show);
+	},
 
-	treasureEl.style.width = `${sizePx}px`;
-	treasureEl.style.height = `${sizePx}px`;
-	treasureEl.style.left = `${treasure.x * rect.width}px`;
-	treasureEl.style.top = `${treasure.y * rect.height}px`;
+	clearTreasure() {
+		const t = this.el.arena.querySelector('.treasure');
+		if (t) t.remove();
+		this.state.currentTreasureId = null;
+	},
 
-	// Tap handler
-	const tap = (ev) => {
-		ev.preventDefault();
-		ev.stopPropagation();
-		if (!currentTreasureId) return;
-		socket.emit('tapTreasure', { treasureId: currentTreasureId });
-	};
+	placeTreasure(treasure) {
+		this.clearTreasure();
+		if (!treasure) return;
 
-	treasureEl.addEventListener('click', tap, { passive: false });
-	treasureEl.addEventListener('touchstart', tap, { passive: false });
+		this.state.currentTreasureId = treasure.id;
 
-	arena.appendChild(treasureEl);
-}
+		const treasureEl = document.createElement('button');
+		treasureEl.className = 'treasure';
+		treasureEl.type = 'button';
+		treasureEl.setAttribute('aria-label', 'Treasure');
+		treasureEl.textContent = '💎';
 
-// Re-position on resize/orientation change (keeps treasure in correct place)
-window.addEventListener('resize', () => {
-	if (!currentTreasureId) return;
-	// We need the last known treasure from state; easiest: request state by reconnect.
-	// But we can simply do nothing; next round will re-place.
-});
+		// Compute pixel position from normalized coords
+		const rect = this.el.arena.getBoundingClientRect();
+		const minDim = Math.min(rect.width, rect.height);
+		const sizePx = Math.max(64, Math.floor(minDim * treasure.size));
 
-// UI actions
-joinBtn.addEventListener('click', () => {
-	socket.emit('join', nameInput.value);
-	nameInput.blur();
-});
+		treasureEl.style.width = `${sizePx}px`;
+		treasureEl.style.height = `${sizePx}px`;
+		treasureEl.style.left = `${treasure.x * rect.width}px`;
+		treasureEl.style.top = `${treasure.y * rect.height}px`;
 
-nameInput.addEventListener('keydown', (e) => {
-	if (e.key === 'Enter') joinBtn.click();
-});
+		// Tap handler
+		const tap = (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+			if (!this.state.currentTreasureId) return;
+			this.socket.emit('tapTreasure', { treasureId: this.state.currentTreasureId });
+		};
 
-startBtn.addEventListener('click', () => socket.emit('start'));
-resetBtn.addEventListener('click', () => socket.emit('reset'));
+		treasureEl.addEventListener('click', tap, { passive: false });
+		treasureEl.addEventListener('touchstart', tap, { passive: false });
 
-socket.on('connect', () => {
-	myId = socket.id;
-	// auto-join with stored name if present
-	const saved = localStorage.getItem('ttr_name');
-	if (saved && saved.trim()) {
-		nameInput.value = saved;
-		socket.emit('join', saved);
-	}
-});
+		this.el.arena.appendChild(treasureEl);
+	},
 
-socket.on('toast', (msg) => showToast(msg));
+	handleStateUpdate(s) {
+		this.updateStatusLabel(s.phase);
+		this.updateRoundDisplay(s.round, s.maxRounds);
+		this.updateScoreboard(s.players);
+		this.saveName();
 
-socket.on('state', (s) => {
-	statusLabel.textContent =
-		s.phase === 'lobby' ? 'Lobby' :
-		s.phase === 'playing' ? 'Playing' :
-		s.phase === 'roundOver' ? 'Round Over' :
-		'Game Over';
+		// Update phase-specific UI
+		if (s.phase === 'lobby') {
+			this.setLobbyState(s.players);
+		} else if (s.phase === 'playing') {
+			this.setPlayingState(s.players, s.treasure);
+		} else if (s.phase === 'roundOver') {
+			this.setRoundOverState(s.players, s.winnerSocketId);
+		} else if (s.phase === 'ended') {
+			this.setEndedState(s.players);
+		}
+	},
 
-	roundText.textContent = String(s.round);
-	maxRoundsText.textContent = String(s.maxRounds);
+	updateStatusLabel(phase) {
+		this.el.statusLabel.textContent =
+			phase === 'lobby' ? 'Lobby' :
+			phase === 'playing' ? 'Playing' :
+			phase === 'roundOver' ? 'Round Over' :
+			'Game Over';
+	},
 
-	// Save name if user typed one
-	const typed = nameInput.value.trim();
-	if (typed) localStorage.setItem('ttr_name', typed);
+	updateRoundDisplay(round, maxRounds) {
+		this.el.roundText.textContent = String(round);
+		this.el.maxRoundsText.textContent = String(maxRounds);
+	},
 
-	// Scoreboard
-	scoreBoard.innerHTML = '';
-	const sorted = [...s.players].sort((a, b) => b.score - a.score);
-	for (const p of sorted) {
-		const li = document.createElement('li');
-		li.className = 'scoreboard--item' + (p.id === myId ? ' current-player' : '');
-		li.innerHTML = `<span>${escapeHtml(p.name)}</span><span>⭐ ${p.score}</span>`;
-		scoreBoard.appendChild(li);
-	}
+	updateScoreboard(players) {
+		this.el.scoreBoard.innerHTML = '';
+		const sorted = [...players].sort((a, b) => b.score - a.score);
+		for (const p of sorted) {
+			const li = document.createElement('li');
+			li.className = 'scoreboard--item' + (p.id === this.state.myId ? ' current-player' : '');
+			li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span>⭐ ${p.score}</span>`;
+			this.el.scoreBoard.appendChild(li);
+		}
+	},
 
-	// Arena / banner
-	if (s.phase === 'lobby') {
-		clearTreasure();
-		const hint = s.players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
-		setBanner(hint, true);
-		hintText.textContent = hint;
-	} else if (s.phase === 'playing') {
-		setBanner('Tap the treasure NOW!', true);
-		const isSinglePlayer = s.players.length === 1;
-		hintText.textContent = isSinglePlayer ? 'Tap to earn points!' : 'First tap wins the point!';
-		placeTreasure(s.treasure);
-	} else if (s.phase === 'roundOver') {
-		clearTreasure();
-		const isSinglePlayer = s.players.length === 1;
-		if (s.winnerSocketId) {
-			const winner = s.players.find(p => p.id === s.winnerSocketId);
+	saveName() {
+		const typed = this.el.nameInput.value.trim();
+		if (typed) localStorage.setItem('ttr_name', typed);
+	},
+
+	setLobbyState(players) {
+		this.clearTreasure();
+		this.hideResetButton();
+		this.showStartButton();
+		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
+		this.setBanner(hint, true);
+		this.el.hintText.textContent = hint;
+	},
+
+	setPlayingState(players, treasure) {
+		this.showResetButton();
+		this.hideStartButton();
+		this.setBanner('Tap the treasure NOW!', true);
+		const isSinglePlayer = players.length === 1;
+		this.el.hintText.textContent = isSinglePlayer ? 'Tap to earn points!' : 'First tap wins the point!';
+		this.placeTreasure(treasure);
+	},
+
+	setRoundOverState(players, winnerSocketId) {
+		this.clearTreasure();
+		const isSinglePlayer = players.length === 1;
+		if (winnerSocketId) {
+			const winner = players.find(p => p.id === winnerSocketId);
 			if (isSinglePlayer) {
-				setBanner('Point earned! 🎉', true);
+				this.setBanner('Point earned! 🎉', true);
 			} else {
-				setBanner(winner ? `Point for ${winner.name}!` : 'Point scored!', true);
+				this.setBanner(winner ? `Point for ${winner.name}!` : 'Point scored!', true);
 			}
 		} else {
-			setBanner(isSinglePlayer ? 'Treasure expired! Next round…' : 'No one got it! Next round…', true);
+			this.setBanner(isSinglePlayer ? 'Treasure expired! Next round…' : 'No one got it! Next round…', true);
 		}
-		hintText.textContent = 'Get ready…';
-	} else if (s.phase === 'ended') {
-		clearTreasure();
-		const sorted = [...s.players].sort((a, b) => b.score - a.score);
+		this.el.hintText.textContent = 'Get ready…';
+	},
+
+	setEndedState(players) {
+		this.clearTreasure();
+		this.hideResetButton();
+		this.showStartButton();
+		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
-		const isSinglePlayer = s.players.length === 1;
+		const isSinglePlayer = players.length === 1;
 
 		if (isSinglePlayer) {
-			setBanner(`Final Score: ${winner.score}`, true);
-			hintText.textContent = 'Press Reset Scores to play again!';
+			this.setBanner(`Final Score: ${winner.score}`, true);
+			this.el.hintText.textContent = 'Press Reset Scores to play again!';
 		} else {
-			const medal = winner.id === myId ? '👑' : '🏆';
-			setBanner(`${medal} ${escapeHtml(winner.name)} wins!`, true);
-			hintText.textContent = `Final: ${winner.name} - ${winner.score}`;
+			const medal = winner.id === this.state.myId ? '👑' : '🏆';
+			this.setBanner(`${medal} ${this.escapeHtml(winner.name)} wins!`, true);
+			this.el.hintText.textContent = `Final: ${winner.name} - ${winner.score}`;
 		}
-	}
-});
+	},
 
-function escapeHtml(str) {
-	return String(str)
-		.replaceAll('&', '&amp;')
-		.replaceAll('<', '&lt;')
-		.replaceAll('>', '&gt;')
-		.replaceAll(`'`, '&quot;')
-		.replaceAll(`'`, '&#039;');
-}
+	addEventListeners() {
+		this.el.joinBtn.addEventListener('click', () => {
+			this.socket.emit('join', this.el.nameInput.value);
+			this.el.nameInput.blur();
+		});
+
+		this.el.nameInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') this.el.joinBtn.click();
+		});
+
+		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
+		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
+
+		window.addEventListener('resize', () => {
+			if (!this.state.currentTreasureId) return;
+			// We need the last known treasure from state; easiest: request state by reconnect.
+			// But we can simply do nothing; next round will re-place.
+		});
+	},
+
+	escapeHtml(str) {
+		return String(str)
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll(`'`, '&quot;')
+			.replaceAll(`'`, '&#039;');
+	}
+};
+
+ClientApp.init();
