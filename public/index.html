@@ -4,6 +4,9 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Treasure Hunt</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Wendy+One&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="assets/styles/style.css" />
 </head>
 <body>
@@ -34,15 +37,10 @@
 			</section>
 		</div>
 
-		<div class="status-bar row">
-			<div id="hintText" class="column align-left">Join the game to start!</div>
-			<div id="statusLabel" class="column align-center text-size-large">Lobby</div>
-			<div class="column align-right">Round: <span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
-		</div>
-
 		<section class="game-row row">
 			<div class="game-border"></div>
 			<div class="game-board">
+				<div class="game-board--round">Round:&nbsp;<span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
 				<div class="game-board--container">
 					<div id="gameBoard" class="game-board--content">
 						<img class="game-board--image" src="/assets/images/map.jpg" alt="map" />

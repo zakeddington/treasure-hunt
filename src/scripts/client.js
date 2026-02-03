@@ -22,10 +22,8 @@ const ClientApp = {
 			scoreBoard: document.getElementById('scoreboard'),
 			gameBoard: document.getElementById('gameBoard'),
 			banner: document.getElementById('banner'),
-			statusLabel: document.getElementById('statusLabel'),
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
-			hintText: document.getElementById('hintText'),
 		}
 
 		this.state = {
@@ -129,7 +127,6 @@ const ClientApp = {
 	},
 
 	handleStateUpdate(s) {
-		this.updateStatusLabel(s.phase);
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players);
 		this.saveName();
@@ -144,14 +141,6 @@ const ClientApp = {
 		} else if (s.phase === 'ended') {
 			this.setEndedState(s.players);
 		}
-	},
-
-	updateStatusLabel(phase) {
-		this.el.statusLabel.textContent =
-			phase === 'lobby' ? 'Lobby' :
-			phase === 'playing' ? 'Playing' :
-			phase === 'roundOver' ? 'Round Over' :
-			'Game Over';
 	},
 
 	updateRoundDisplay(round, maxRounds) {
@@ -181,15 +170,12 @@ const ClientApp = {
 		this.showStartButton();
 		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
 		this.setBanner(hint, true, true);
-		this.el.hintText.textContent = hint;
 	},
 
 	setPlayingState(players, treasure) {
 		this.showResetButton();
 		this.hideStartButton();
 		this.setBanner('Find the treasure NOW!', true);
-		const isSinglePlayer = players.length === 1;
-		this.el.hintText.textContent = isSinglePlayer ? 'Tap to earn points!' : 'First tap wins the point!';
 		this.placeTreasure(treasure);
 	},
 
@@ -206,7 +192,6 @@ const ClientApp = {
 		} else {
 			this.setBanner(isSinglePlayer ? 'Treasure expired! Next round…' : 'No one got it! Next round…', true);
 		}
-		this.el.hintText.textContent = 'Get ready…';
 	},
 
 	setEndedState(players) {
@@ -218,13 +203,11 @@ const ClientApp = {
 		const isSinglePlayer = players.length === 1;
 
 		if (isSinglePlayer) {
-			this.setBanner(`Final Score: ${winner.score}`, true, true);
+			this.setBanner(`<span class="text-size-large">Game Over</span><br />Final Score: ${winner.score}`, true, true);
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
-			this.setBanner(`${medal}<br>${this.escapeHtml(winner.name)} wins!`, true, true);
+			this.setBanner(`<span class="text-size-large">Game Over<br />${medal}</span><br />${this.escapeHtml(winner.name)} wins!`, true, true);
 		}
-
-		this.el.hintText.textContent = 'Press Start to play again!';
 	},
 
 	addEventListeners() {
