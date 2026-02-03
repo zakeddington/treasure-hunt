@@ -11,13 +11,24 @@ body {
 	align-items: center;
 	display: flex;
 	justify-content: center;
-	padding: var(--spacing-md);
+	padding: var(--spacing-md) var(--spacing-md) 0;
 
 	&--content {
 		align-items: center;
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-xxs);
+		gap: var(--spacing-sm);
+	}
+
+	&--title {
+		align-items: center;
+		display: flex;
+		gap: var(--spacing-sm);
+	}
+
+	&--tagline {
+		color: var(--color-text-secondary);
+		text-align: center;
 	}
 }
 
