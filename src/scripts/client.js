@@ -186,7 +186,7 @@ const ClientApp = {
 		for (const p of sorted) {
 			const li = document.createElement('li');
 			li.className = 'scoreboard--item' + (p.id === this.state.myId ? ' current-player' : '');
-			li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span>⭐ ${p.score}</span>`;
+			li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span>💎 ${p.score}</span>`;
 			this.el.scoreBoard.appendChild(li);
 		}
 	},
