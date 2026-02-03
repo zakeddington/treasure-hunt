@@ -24,7 +24,7 @@ const ClientApp = {
 			banner: document.getElementById('banner'),
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
-			timer: document.querySelector('.game-board--timer'),
+			timer: document.querySelector('.game-board--round-timer'),
 		}
 
 		this.state = {
@@ -99,6 +99,7 @@ const ClientApp = {
 
 	startTimer(roundEndsAt) {
 		this.stopTimer();
+		this.el.timer.classList.remove(this.classes.hidden);
 
 		// Update immediately on start
 		this.updateTimerDisplay(roundEndsAt);
@@ -122,6 +123,7 @@ const ClientApp = {
 		}
 
 		this.el.timer.textContent = '';
+		this.el.timer.classList.add(this.classes.hidden);
 	},
 
 	placeTreasure(treasure) {
