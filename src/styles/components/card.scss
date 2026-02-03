@@ -1,3 +1,5 @@
+@use '../variables';
+
 .card {
 	background: var(--color-bg-secondary);
 	border: var(--shape-border-width) solid var(--color-shape-border);
@@ -7,11 +9,17 @@
 	gap: var(--spacing-sm);
 	padding: var(--spacing-sm);
 
+	@media (min-width: variables.$breakpoint-desktop) {
+		max-width: 50%;
+	}
+
 	&--row {
 		align-items: center;
+		border-bottom: 2px solid var(--color-bg-opacity-light);
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-xs);
 		justify-content: flex-end;
+		padding-bottom: var(--spacing-sm);
 	}
 }

@@ -4,12 +4,15 @@
 	background: var(--color-btn-primary-bg-default);
 	border-bottom-right-radius: var(--radius-xs);
 	border-top-left-radius: var(--radius-xs);
-	border: 1px solid var(--color-btn-primary-border-default);
+	border: 0;
 	color: var(--color-btn-primary-text-default);
 	cursor: pointer;
+	display: inline-flex;
 	font-family: var(--font-family);
-	font-size: var(--font-size-text-small);
+	font-size: var(--font-size-text-default);
 	font-weight: var(--font-weight-normal);
+	justify-content: center;
+	line-height: var(--font-line-height-text-default);
 	padding: var(--spacing-xs);
 	touch-action: manipulation;
 	transition: all var(--anim-speed) var(--anim-ease);
@@ -17,26 +20,22 @@
 	@media (min-width: variables.$breakpoint-desktop) {
 		border-bottom-right-radius: var(--radius-sm);
 		border-top-left-radius: var(--radius-sm);
-		font-size: var(--font-size-text-default);
 		padding: var(--spacing-sm);
 	}
 
 	&:hover,
 	&:focus-visible {
 		background: var(--color-btn-primary-bg-hover);
-		border-color: var(--color-btn-primary-border-hover);
 		color: var(--color-btn-primary-text-hover);
 	}
 
 	&-secondary {
 		background: var(--color-btn-secondary-bg-default);
-		border-color: var(--color-btn-secondary-border-default);
 		color: var(--color-btn-secondary-text-default);
 
 		&:hover,
 		&:focus-visible {
 			background: var(--color-btn-secondary-bg-hover);
-			border-color: var(--color-btn-secondary-border-hover);
 			color: var(--color-btn-secondary-text-hover);
 		}
 	}

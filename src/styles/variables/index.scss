@@ -3,7 +3,6 @@ $breakpoint-desktop: 900px;
 :root {
 	// Color Palette
 	--color-palette-blue-100: #c9d5d4;
-
 	--color-palette-blue-300: #3d89a8;
 	--color-palette-blue-300-rgb: 61, 137, 168;
 	--color-palette-blue-500: #276278;
@@ -30,24 +29,20 @@ $breakpoint-desktop: 900px;
 	--color-bg-opacity-dark: rgba(0, 0, 0, 0.75);
 
 	--color-text-primary: var(--color-palette-white);
-	--color-text-secondary: rgba(255, 255, 255, 0.75);
+	--color-text-secondary: var(--color-palette-yellow-300);
 
 	--color-btn-primary-bg-default: var(--color-palette-yellow-500);
 	--color-btn-primary-bg-hover: var(--color-palette-yellow-800);
-	--color-btn-primary-border-default: transparent;
-	--color-btn-primary-border-hover: transparent;
 	--color-btn-primary-text-default: var(--color-palette-black);
 	--color-btn-primary-text-hover: var(--color-palette-black);
 
 	--color-btn-secondary-bg-default: var(--color-bg-opacity-med);
 	--color-btn-secondary-bg-hover: var(--color-bg-opacity-light);
-	--color-btn-secondary-border-default: transparent;
-	--color-btn-secondary-border-hover: transparent;
 	--color-btn-secondary-text-default: var(--color-palette-white);
 	--color-btn-secondary-text-hover: var(--color-palette-white);
 
 	--color-form-input-bg: var(--color-bg-opacity-light);
-	--color-form-input-placeholder: var(--color-text-secondary);
+	--color-form-input-placeholder: rgba(255, 255, 255, 0.75);
 
 	// Shapes
 	--color-shape-bg: var(--color-palette-black);

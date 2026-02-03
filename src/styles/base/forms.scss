@@ -4,19 +4,22 @@
 	background: var(--color-form-input-bg);
 	border: 0;
 	color: var(--color-text-primary);
+	display: inline-flex;
 	flex: 1;
 	font-family: var(--font-family);
 	font-size: var(--font-size-text-small);
-	min-width: 140px;
+	font-weight: var(--font-weight-normal);
+	height: 100%;
+	line-height: var(--font-line-height-text-default);
+	min-width: 5em;
 	outline: none;
-	padding: var(--spacing-xs);
+	padding: var(--spacing-xs) var(--spacing-sm);
+
+	@media (min-width: variables.$breakpoint-desktop) {
+		font-size: var(--font-size-text-normal);
+	}
 
 	&::placeholder {
 		color: var(--color-form-input-placeholder);
-	}
-
-	@media (min-width: variables.$breakpoint-desktop) {
-		font-size: var(--font-size-text-default);
-		padding: var(--spacing-sm);
 	}
 }
