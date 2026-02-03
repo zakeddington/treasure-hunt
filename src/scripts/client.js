@@ -24,12 +24,14 @@ const ClientApp = {
 			banner: document.getElementById('banner'),
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
+			timer: document.querySelector('.game-board--timer'),
 		}
 
 		this.state = {
 			myId: null,
 			currentTreasureId: null,
 			bannerTimeoutId: null,
+			timerIntervalId: null,
 		}
 	},
 
@@ -92,6 +94,34 @@ const ClientApp = {
 		const t = this.el.gameBoard.querySelector('.treasure');
 		if (t) t.remove();
 		this.state.currentTreasureId = null;
+		this.stopTimer();
+	},
+
+	startTimer(roundEndsAt) {
+		this.stopTimer();
+
+		// Update immediately on start
+		this.updateTimerDisplay(roundEndsAt);
+
+		// Update every second
+		this.state.timerIntervalId = setInterval(() => {
+			this.updateTimerDisplay(roundEndsAt);
+		}, 1000);
+	},
+
+	updateTimerDisplay(roundEndsAt) {
+		const now = Date.now();
+		const remaining = Math.max(0, Math.ceil((roundEndsAt - now) / 1000));
+		this.el.timer.textContent = String(remaining).padStart(2, '0');
+	},
+
+	stopTimer() {
+		if (this.state.timerIntervalId) {
+			clearInterval(this.state.timerIntervalId);
+			this.state.timerIntervalId = null;
+		}
+
+		this.el.timer.textContent = '';
 	},
 
 	placeTreasure(treasure) {
@@ -135,7 +165,7 @@ const ClientApp = {
 		if (s.phase === 'lobby') {
 			this.setLobbyState(s.players);
 		} else if (s.phase === 'playing') {
-			this.setPlayingState(s.players, s.treasure);
+			this.setPlayingState(s.treasure, s.roundEndsAt);
 		} else if (s.phase === 'roundOver') {
 			this.setRoundOverState(s.players, s.winnerSocketId);
 		} else if (s.phase === 'ended') {
@@ -172,11 +202,12 @@ const ClientApp = {
 		this.setBanner(hint, true, true);
 	},
 
-	setPlayingState(players, treasure) {
+	setPlayingState(treasure, roundEndsAt) {
 		this.showResetButton();
 		this.hideStartButton();
 		this.setBanner('Find the treasure NOW!', true);
 		this.placeTreasure(treasure);
+		this.startTimer(roundEndsAt);
 	},
 
 	setRoundOverState(players, winnerSocketId) {

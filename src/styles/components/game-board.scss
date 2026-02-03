@@ -42,6 +42,23 @@
 	touch-action: manipulation;
 	user-select: none;
 
+
+	&--timer {
+		align-items: center;
+		background: var(--color-bg-opacity-dark);
+		border-radius: var(--radius-full);
+		border: var(--shape-border-width) solid var(--color-bg-secondary);
+		display: flex;
+		font-size: var(--font-size-text-default);
+		height: 60px;
+		justify-content: center;
+		left: 15px;
+		position: absolute;
+		top: 15px;
+		width: 60px;
+		z-index: var(--z-index-above-default);
+	}
+
 	&--round {
 		background: var(--color-bg-opacity-dark);
 		border: var(--shape-border-width) solid var(--color-bg-secondary);
@@ -104,3 +121,4 @@
 	transform: translate(-50%, -50%);
 	z-index: var(--z-index-above-default);
 }
+
