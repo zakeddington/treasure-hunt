@@ -1,4 +1,6 @@
-.game-status-bar {
+@use '../variables';
+
+.status-bar {
 	align-items: center;
 	background: var(--color-bg-secondary);
 	border: var(--shape-border-width) solid var(--color-shape-border);
@@ -7,6 +9,25 @@
 	gap: var(--spacing-sm);
 	justify-content: space-between;
 	padding: var(--spacing-sm);
+}
+
+.game-row {
+	padding: var(--spacing-xs);
+
+	@media (min-width: variables.$breakpoint-desktop) {
+		padding: var(--spacing-sm);
+	}
+}
+
+.game-border {
+	background: var(--color-shape-border);
+	clip-path: polygon(var(--shape-border-width) var(--shape-border-width),calc(100% - var(--shape-border-width)) calc(var(--shape-offset) + var(--shape-border-width)),calc(100% - var(--shape-offset) - var(--shape-border-width)) calc(100% - var(--shape-border-width)),calc(var(--shape-offset) + var(--shape-border-width)) calc(100% - var(--shape-border-width)));
+	content: '';
+	height: 100%;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
 }
 
 .game-board {
@@ -21,17 +42,6 @@
 	position: relative;
 	touch-action: manipulation;
 	user-select: none;
-
-	&:after {
-		background: var(--color-shape-bg);
-		clip-path: polygon(var(--shape-border-width) var(--shape-border-width),calc(100% - var(--shape-border-width)) calc(var(--shape-offset) + var(--shape-border-width)),calc(100% - var(--shape-offset) - var(--shape-border-width)) calc(100% - var(--shape-border-width)),calc(var(--shape-offset) + var(--shape-border-width)) calc(100% - var(--shape-border-width)));
-		content: '';
-		height: 100%;
-		left: 0;
-		position: absolute;
-		top: 0;
-		width: 100%;
-	}
 
 	&--container {
 		display: block;
@@ -78,7 +88,8 @@
 	left: 50%;
 	padding: var(--spacing-sm) var(--spacing-lg);
 	position: absolute;
+	text-align: center;
 	top: 50%;
 	transform: translate(-50%, -50%);
-		z-index: var(--z-index-above-default);
+	z-index: var(--z-index-above-default);
 }

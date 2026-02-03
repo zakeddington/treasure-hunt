@@ -72,7 +72,7 @@ const ClientApp = {
 			this.state.bannerTimeoutId = null;
 		}
 
-		this.el.banner.textContent = msg;
+		this.el.banner.innerHTML = msg;
 		this.el.banner.classList.remove(this.classes.hidden, this.classes.fadingOut);
 
 		if (show && !persist) {
@@ -221,7 +221,7 @@ const ClientApp = {
 			this.setBanner(`Final Score: ${winner.score}`, true, true);
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
-			this.setBanner(`${medal} ${this.escapeHtml(winner.name)} wins!`, true, true);
+			this.setBanner(`${medal}<br>${this.escapeHtml(winner.name)} wins!`, true, true);
 		}
 
 		this.el.hintText.textContent = 'Press Start to play again!';
