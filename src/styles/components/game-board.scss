@@ -95,6 +95,18 @@
 		display: block;
 		margin: 0;
 	}
+
+	&--banner {
+		background: var(--color-bg-opacity-dark);
+		border: var(--shape-border-width) solid var(--color-bg-secondary);
+		left: 50%;
+		padding: var(--spacing-sm) var(--spacing-lg);
+		position: absolute;
+		text-align: center;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		z-index: var(--z-index-above-default);
+	}
 }
 
 .treasure {
@@ -116,15 +128,12 @@
 	}
 }
 
-.banner {
-	background: var(--color-bg-opacity-dark);
-	border: var(--shape-border-width) solid var(--color-bg-secondary);
-	left: 50%;
-	padding: var(--spacing-sm) var(--spacing-lg);
-	position: absolute;
-	text-align: center;
-	top: 50%;
-	transform: translate(-50%, -50%);
+.treasure-fly {
+	border-radius: var(--radius-full);
+	opacity: 1;
+	pointer-events: none;
+	position: fixed;
+	transform-origin: center center;
 	z-index: var(--z-index-above-default);
 }
 

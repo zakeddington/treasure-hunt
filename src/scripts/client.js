@@ -9,9 +9,21 @@ const ClientApp = {
 
 	initElements() {
 
+		this.config = {
+			animSpeedTreasure: 1000, // ms
+			animSpeedScore: 900, // ms
+		}
+
 		this.classes = {
 			hidden: 'hidden',
 			fadingOut: 'fading-out',
+			treasure: 'treasure',
+			scoreboardItem: 'scoreboard--item',
+			currentPlayer: 'current-player',
+		}
+
+		this.selectors = {
+			curPlayerScore: '.scoreboard--item.current-player .scoreboard--item-score',
 		}
 
 		this.el = {
@@ -91,7 +103,7 @@ const ClientApp = {
 	},
 
 	clearTreasure() {
-		const t = this.el.gameBoard.querySelector('.treasure');
+		const t = this.el.gameBoard.querySelector('.' + this.classes.treasure);
 		if (t) t.remove();
 		this.state.currentTreasureId = null;
 		this.stopTimer();
@@ -133,7 +145,7 @@ const ClientApp = {
 		this.state.currentTreasureId = treasure.id;
 
 		const treasureEl = document.createElement('button');
-		treasureEl.className = 'treasure';
+		treasureEl.className = this.classes.treasure;
 		treasureEl.type = 'button';
 		treasureEl.setAttribute('aria-label', 'Treasure');
 		treasureEl.textContent = '💎';
@@ -149,6 +161,12 @@ const ClientApp = {
 			ev.preventDefault();
 			ev.stopPropagation();
 			if (!this.state.currentTreasureId) return;
+			// animate locally to give immediate feedback
+			try {
+				this.animateTreasureToScore(treasureEl);
+			} catch (err) {
+				// ignore
+			}
 			this.socket.emit('tapTreasure', { treasureId: this.state.currentTreasureId });
 		};
 
@@ -158,9 +176,44 @@ const ClientApp = {
 		this.el.gameBoard.appendChild(treasureEl);
 	},
 
+	animateTreasureToScore(sourceEl) {
+		const scoreBoard = this.el.scoreBoard;
+		if (!scoreBoard) return;
+		const targetItem = scoreBoard.querySelector(this.selectors.curPlayerScore);
+		if (!targetItem) return;
+
+		const sourceRect = sourceEl.getBoundingClientRect();
+		const targetRect = targetItem.getBoundingClientRect();
+
+		const clone = sourceEl.cloneNode(true);
+		clone.classList.add('treasure-fly');
+		clone.style.position = 'fixed';
+		clone.style.left = `${sourceRect.left}px`;
+		clone.style.top = `${sourceRect.top}px`;
+		clone.style.width = `${sourceRect.width}px`;
+		clone.style.height = `${sourceRect.height}px`;
+		clone.style.margin = '0';
+		clone.style.pointerEvents = 'none';
+		document.body.appendChild(clone);
+
+		// force layout
+		void clone.offsetWidth;
+
+		const destX = (targetRect.left + targetRect.width / 2) - (sourceRect.left + sourceRect.width / 2);
+		const destY = (targetRect.top + targetRect.height / 2) - (sourceRect.top + sourceRect.height / 2);
+
+		clone.style.transition = `transform ${this.config.animSpeedTreasure}ms cubic-bezier(0.2,0.8,0.2,1), opacity ${this.config.animSpeedTreasure}ms linear`;
+		clone.style.transform = `translate(${destX}px, ${destY}px) scale(0.3)`;
+		clone.style.opacity = '0.95';
+
+		setTimeout(() => { clone.style.opacity = '0'; }, 600);
+
+		clone.addEventListener('transitionend', () => clone.remove(), { once: true });
+	},
+
 	handleStateUpdate(s) {
 		this.updateRoundDisplay(s.round, s.maxRounds);
-		this.updateScoreboard(s.players);
+		this.updateScoreboard(s.players, s.winnerSocketId);
 		this.saveName();
 
 		// Update phase-specific UI
@@ -180,15 +233,22 @@ const ClientApp = {
 		this.el.maxRoundsText.textContent = String(maxRounds);
 	},
 
-	updateScoreboard(players) {
-		this.el.scoreBoard.innerHTML = '';
-		const sorted = [...players].sort((a, b) => b.score - a.score);
-		for (const p of sorted) {
-			const li = document.createElement('li');
-			li.className = 'scoreboard--item' + (p.id === this.state.myId ? ' current-player' : '');
-			li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span>💎 ${p.score}</span>`;
-			this.el.scoreBoard.appendChild(li);
-		}
+	updateScoreboard(players, winnerSocketId) {
+		console.log('updateScoreboard');
+		setTimeout(() => {
+			this.el.scoreBoard.innerHTML = '';
+			for (const p of [...players]) {
+				const li = document.createElement('li');
+				li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
+				li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span class="scoreboard--item-score">💎 ${p.score}</span>`;
+				if (winnerSocketId && p.id === winnerSocketId) {
+					li.classList.add('anim-score');
+					// remove class after animation completes
+					setTimeout(() => li.classList.remove('anim-score'), this.config.animSpeedScore);
+				}
+				this.el.scoreBoard.appendChild(li);
+			}
+		}, this.config.animSpeedTreasure);
 	},
 
 	saveName() {
