@@ -302,9 +302,12 @@ const ClientApp = {
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;
+		const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score;
 
 		if (isSinglePlayer) {
 			this.setBanner(`<span class="text-size-large">Game Over</span><br />Final Score: ${winner.score}`, true, true);
+		} else if (isTie) {
+			this.setBanner(`<span class="text-size-large">Game Over</span><br />🤝 It's a Tie!`, true, true);
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
 			this.setBanner(`<span class="text-size-large">Game Over<br />${medal}</span><br />${this.escapeHtml(winner.name)} wins!`, true, true);
