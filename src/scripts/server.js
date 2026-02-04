@@ -16,6 +16,7 @@ const state = {
 	players: new Map(),
 	round: 0,
 	maxRounds: 3,
+	roundLength: 60000, // ms
 	treasure: null,
 	winnerSocketId: null,
 	roundEndsAt: null
@@ -61,7 +62,7 @@ function spawnTreasure() {
 	};
 	state.winnerSocketId = null;
 	state.phase = 'playing';
-	state.roundEndsAt = Date.now() + 60000;
+	state.roundEndsAt = Date.now() + state.roundLength;
 
 	broadcastState();
 
@@ -70,10 +71,11 @@ function spawnTreasure() {
 			state.phase = 'roundOver';
 			state.treasure = null;
 			state.roundEndsAt = null;
+			state.round += 1;
 			broadcastState();
 			scheduleNextRound();
 		}
-	}, 60100);
+	}, state.roundLength + 100);
 }
 
 function scheduleNextRound() {
