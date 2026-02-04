@@ -213,7 +213,7 @@ const ClientApp = {
 
 	handleStateUpdate(s) {
 		this.updateRoundDisplay(s.round, s.maxRounds);
-		this.updateScoreboard(s.players, s.winnerSocketId);
+		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
 		this.saveName();
 
 		// Update phase-specific UI
@@ -233,8 +233,16 @@ const ClientApp = {
 		this.el.maxRoundsText.textContent = String(maxRounds);
 	},
 
-	updateScoreboard(players, winnerSocketId) {
-		console.log('updateScoreboard');
+	updateScoreboard(players, winnerSocketId, phase) {
+		let timeout = 0;
+
+		// prevent anim from being overridden by other state updates
+		if (phase === 'roundOver') {
+			timeout = this.config.animSpeedTreasure;
+		} else if (phase === 'ended') {
+			timeout = this.config.animSpeedTreasure + this.config.animSpeedScore;
+		}
+
 		setTimeout(() => {
 			this.el.scoreBoard.innerHTML = '';
 			for (const p of [...players]) {
@@ -248,7 +256,7 @@ const ClientApp = {
 				}
 				this.el.scoreBoard.appendChild(li);
 			}
-		}, this.config.animSpeedTreasure);
+		}, timeout);
 	},
 
 	saveName() {
