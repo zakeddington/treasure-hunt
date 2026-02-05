@@ -11,26 +11,16 @@ app.use(express.static(path.join(__dirname, '../../public')));
 
 const PORT = process.env.PORT || 3000;
 
-const maps = [
-	'/assets/images/map-01.jpg',
-	'/assets/images/map-02.jpg',
-	'/assets/images/map-03.jpg',
-	'/assets/images/map-04.jpg',
-	'/assets/images/map-05.jpg',
-	'/assets/images/map-06.jpg',
-	'/assets/images/map-07.jpg',
-	'/assets/images/map-08.jpg',
-	'/assets/images/map-09.jpg',
-	'/assets/images/map-10.jpg',
-	'/assets/images/map-11.jpg',
-	'/assets/images/map-12.jpg',
-	'/assets/images/map-13.jpg',
-	'/assets/images/map-14.jpg',
-	'/assets/images/map-15.jpg',
-	'/assets/images/map-16.jpg',
-	'/assets/images/map-17.jpg',
-	'/assets/images/map-18.jpg',
+const mapNames = [
+	'map-01', 'map-02', 'map-03', 'map-04', 'map-05', 'map-06', 'map-07', 'map-08',
+	'map-09', 'map-10', 'map-11', 'map-12', 'map-13', 'map-14', 'map-15', 'map-16',
+	'map-17', 'map-18',
 ];
+
+const maps = mapNames.map(name => ({
+	full: `/assets/images/${name}.jpg`,
+	thumb: `/assets/images/thumbs/${name}.jpg`,
+}));
 
 const state = {
 	phase: 'lobby',
@@ -45,7 +35,7 @@ const state = {
 };
 
 function pickRandomMap() {
-    return maps[Math.floor(Math.random() * maps.length)];
+    return maps[Math.floor(Math.random() * maps.length)].full;
 }
 
 function playersList() {
@@ -70,7 +60,8 @@ function broadcastState() {
 		} : null,
 		winnerSocketId: state.winnerSocketId,
 		roundEndsAt: state.roundEndsAt,
-		selectedMap: state.selectedMap
+		selectedMap: state.selectedMap,
+		maps: maps.map(m => ({ full: m.full, thumb: m.thumb }))
 	});
 }
 
@@ -130,6 +121,14 @@ io.on('connection', (socket) => {
 
 	// Ensure a map is selected for initial connection
 	if (!state.selectedMap) state.selectedMap = pickRandomMap();
+
+	// allow clients to request a map change
+	socket.on('selectMap', (mapSrc) => {
+		if (typeof mapSrc !== 'string') return;
+		if (!maps.some(m => m.full === mapSrc)) return;
+		state.selectedMap = mapSrc;
+		broadcastState();
+	});
 
 	socket.on('join', (name) => {
 		const clean = String(name || '').trim().slice(0, 16) || 'Player';

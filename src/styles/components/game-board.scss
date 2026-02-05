@@ -137,3 +137,42 @@
 	z-index: var(--z-index-above-default);
 }
 
+.game-board--map-picker {
+	position: absolute;
+	bottom: 18px;
+	left: 18px;
+	display: flex;
+	gap: var(--spacing-xs);
+	z-index: var(--z-index-above-default);
+	background: rgba(0,0,0,0.12);
+	padding: var(--spacing-xs);
+	border-radius: var(--radius-default);
+	align-items: center;
+}
+
+.map-picker--item {
+	border: 2px solid transparent;
+	padding: 2px;
+	background: transparent;
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.map-picker--item.selected {
+	border-color: var(--color-bg-secondary);
+}
+
+.map-picker--thumb {
+	height: 300px;
+	width: 300px;
+	display: block;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.game-board--map-picker {
+	max-width: calc(100% - 36px);
+	overflow-x: auto;
+	padding-bottom: 6px;
+}
+

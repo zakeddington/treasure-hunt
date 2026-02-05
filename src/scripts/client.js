@@ -37,6 +37,7 @@ const ClientApp = {
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
 			timer: document.querySelector('.game-board--round-timer'),
+			mapPicker: document.getElementById('mapPicker'),
 			map: document.getElementById('gameMap'),
 		}
 
@@ -217,6 +218,13 @@ const ClientApp = {
 		if (s.selectedMap && this.el.map && this.el.map.src !== s.selectedMap) {
 			this.el.map.src = s.selectedMap;
 		}
+		// Render map picker if maps list provided
+		if (Array.isArray(s.maps) && this.el.mapPicker) {
+			this.renderMapPicker(s.maps, s.selectedMap);
+			// show picker only in lobby or ended
+			const showPicker = s.phase === 'lobby' || s.phase === 'ended';
+			this.el.mapPicker.classList.toggle(this.classes.hidden, !showPicker);
+		}
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
 		this.saveName();
@@ -262,6 +270,30 @@ const ClientApp = {
 				this.el.scoreBoard.appendChild(li);
 			}
 		}, timeout);
+	},
+
+	renderMapPicker(maps, selected) {
+		if (!this.el.mapPicker) return;
+		this.el.mapPicker.innerHTML = '';
+		for (const mapObj of maps) {
+			const btn = document.createElement('button');
+			btn.className = 'map-picker--item';
+			btn.type = 'button';
+			btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
+			const img = document.createElement('img');
+			img.src = mapObj.thumb;
+			img.alt = 'map';
+			img.className = 'map-picker--thumb';
+			img.width = 300;
+			img.height = 300;
+			img.loading = 'lazy';
+			btn.appendChild(img);
+			if (mapObj.full === selected) btn.classList.add('selected');
+			btn.addEventListener('click', () => {
+				this.socket.emit('selectMap', mapObj.full);
+			});
+			this.el.mapPicker.appendChild(btn);
+		}
 	},
 
 	saveName() {

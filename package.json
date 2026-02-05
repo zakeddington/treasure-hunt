@@ -9,6 +9,7 @@
     "build:css": "sass src/styles/style.scss public/assets/styles/style.css",
     "build:js": "mkdir -p public/assets/scripts && cp src/scripts/client.js public/assets/scripts/client.js && cp src/scripts/server.js public/assets/scripts/server.js",
     "build:images": "mkdir -p public/assets/images && cp -r src/images/* public/assets/images/",
+    "generate:thumbs": "node scripts/generate-thumbs.js",
     "build": "npm run build:css && npm run build:js && npm run build:images"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "sharp": "^0.32.0"
   }
 }
