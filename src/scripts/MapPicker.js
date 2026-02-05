@@ -4,6 +4,9 @@ export class MapPicker {
 
 		this.classes = {
 			hidden: 'hidden',
+			selected: 'selected',
+			elMapItem: 'map-picker--item',
+			elMapThumb: 'map-picker--thumb',
 		}
 
 		this.el = {
@@ -12,6 +15,7 @@ export class MapPicker {
 			mapPickerBtn: document.getElementById('mapPickerBtn'),
 			mapDrawer: document.getElementById('mapDrawer'),
 			mapDrawerCloseBtn: document.getElementById('mapDrawerCloseBtn'),
+			mapDrawerOverlay: document.querySelector('.map-drawer--overlay'),
 			mapPickerItems: null,
 		};
 
@@ -26,10 +30,20 @@ export class MapPicker {
 		this.addEventListeners();
 	}
 
+	// Public methods (called from client.js)
+	// -----------------------------------------------------------------------
 	setMap(mapSrc) {
 		if (mapSrc && this.el.map && this.el.map.src !== mapSrc) {
 			this.el.map.src = mapSrc;
 		}
+	}
+
+	showMapPickerButton() {
+		this.el.mapPickerBtn.classList.remove(this.classes.hidden);
+	}
+
+	hideMapPickerButton() {
+		this.el.mapPickerBtn.classList.add(this.classes.hidden);
 	}
 
 	handleStateUpdate(maps, selectedMap) {
@@ -45,11 +59,13 @@ export class MapPicker {
 		}
 	}
 
+	// Local methods
+	// -----------------------------------------------------------------------
 	render(maps, selected) {
 		this.el.mapPicker.innerHTML = '';
 		for (const mapObj of maps) {
 			const btn = document.createElement('button');
-			btn.className = 'map-picker--item';
+			btn.className = this.classes.elMapItem;
 			btn.type = 'button';
 			btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
 			btn.dataset.mapFull = mapObj.full;
@@ -57,11 +73,11 @@ export class MapPicker {
 			const img = document.createElement('img');
 			img.src = mapObj.thumb;
 			img.alt = 'map';
-			img.className = 'map-picker--thumb';
+			img.className = this.classes.elMapThumb;
 			img.loading = 'lazy';
 
 			btn.appendChild(img);
-			if (mapObj.full === selected) btn.classList.add('selected');
+			if (mapObj.full === selected) btn.classList.add(this.classes.selected);
 
 			btn.addEventListener('click', () => {
 				this.socket.emit('selectMap', mapObj.full);
@@ -69,25 +85,17 @@ export class MapPicker {
 
 			this.el.mapPicker.appendChild(btn);
 		}
-		this.el.mapPickerItems = document.querySelectorAll('.map-picker--item');
+		this.el.mapPickerItems = document.querySelectorAll('.' + this.classes.elMapItem);
 	}
 
 	updateSelection(selectedMapSrc) {
 		if (!this.el.mapPickerItems) return;
 		this.el.mapPickerItems.forEach((item) => {
-			item.classList.remove('selected');
+			item.classList.remove(this.classes.selected);
 			if (item.dataset.mapFull === selectedMapSrc) {
-				item.classList.add('selected');
+				item.classList.add(this.classes.selected);
 			}
 		});
-	}
-
-	show() {
-		this.el.mapPickerBtn.classList.remove(this.classes.hidden);
-	}
-
-	hide() {
-		this.el.mapPickerBtn.classList.add(this.classes.hidden);
 	}
 
 	openDrawer() {
@@ -109,7 +117,7 @@ export class MapPicker {
 	addEventListeners() {
 		this.el.mapPickerBtn.addEventListener('click', () => this.openDrawer());
 		this.el.mapDrawerCloseBtn.addEventListener('click', () => this.closeDrawer());
-		this.el.mapDrawer.querySelector('.map-drawer--overlay').addEventListener('click', () => this.closeDrawer());
+		this.el.mapDrawerOverlay.addEventListener('click', () => this.closeDrawer());
 
 		document.addEventListener('keydown', (e) => this.onKeydown(e));
 	}

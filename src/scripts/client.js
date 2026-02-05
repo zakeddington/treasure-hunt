@@ -86,14 +86,6 @@ const ClientApp = {
 		this.el.startBtn.classList.remove(this.classes.hidden);
 	},
 
-	hideMapPickerButton() {
-		this.mapPicker.hide();
-	},
-
-	showMapPickerButton() {
-		this.mapPicker.show();
-	},
-
 	setBanner(msg, show = true, persist = false) {
 		// Cancel any pending fade-out
 		if (this.state.bannerTimeoutId) {
@@ -289,13 +281,13 @@ const ClientApp = {
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
-		this.showMapPickerButton();
+		this.mapPicker.showMapPickerButton();
 		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
 		this.setBanner(hint, true, true);
 	},
 
 	setPlayingState(treasure, roundEndsAt) {
-		this.hideMapPickerButton();
+		this.mapPicker.hideMapPickerButton();
 		this.showResetButton();
 		this.hideStartButton();
 		this.setBanner('Find the treasure NOW!', true);
@@ -304,7 +296,7 @@ const ClientApp = {
 	},
 
 	setRoundOverState(players, winnerSocketId) {
-		this.hideMapPickerButton();
+		this.mapPicker.hideMapPickerButton();
 		this.clearTreasure();
 		const isSinglePlayer = players.length === 1;
 		if (winnerSocketId) {
@@ -320,11 +312,11 @@ const ClientApp = {
 	},
 
 	setEndedState(players) {
-		this.hideMapPickerButton();
+		this.mapPicker.hideMapPickerButton();
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
-		this.showMapPickerButton();
+		this.mapPicker.showMapPickerButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;
