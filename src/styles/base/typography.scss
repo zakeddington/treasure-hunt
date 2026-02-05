@@ -7,9 +7,13 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-size: var(--font-size-text-xlarge);
+	font-size: var(--font-size-text-large);
 	font-weight: var(--font-weight-normal);
 	line-height: var(--font-line-height-text-headline);
+}
+
+h1 {
+	font-size: var(--font-size-text-xlarge);
 }
 
 .text-size-small {

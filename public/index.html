@@ -35,6 +35,7 @@
 		<div class="row">
 			<button id="resetBtn" class="btn btn-secondary hidden">Reset Game</button>
 			<button id="startBtn" class="btn btn-primary">Start Game</button>
+			<button id="mapPickerBtn" class="btn btn-secondary" aria-label="Open map picker">Select Map</button>
 		</div>
 
 		<section class="game-row row">
@@ -49,10 +50,24 @@
 						<img id="gameMap" class="game-board--image" src="" alt="map" />
 					</div>
 				</div>
-				<div id="mapPicker" class="game-board--map-picker hidden" aria-label="Map picker"></div>
 				<div id="banner" class="game-board--banner hidden"></div>
 			</div>
 		</section>
+
+		<div id="mapDrawer" class="map-drawer hidden" role="dialog" aria-label="Map selector drawer">
+			<div class="map-drawer--overlay"></div>
+			<div class="map-drawer--panel">
+				<div class="map-drawer--header">
+					<h2>Select Map</h2>
+					<button id="mapDrawerCloseBtn" class="map-drawer--close-btn" aria-label="Close map picker">✕</button>
+				</div>
+				<div class="map-picker">
+						<div id="mapPicker" class="map-picker--content">
+
+						</div>
+				</div>
+			</div>
+		</div>
 	</main>
 
 	<script src="/socket.io/socket.io.js"></script>

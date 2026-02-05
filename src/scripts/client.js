@@ -39,6 +39,9 @@ const ClientApp = {
 			timer: document.querySelector('.game-board--round-timer'),
 			mapPicker: document.getElementById('mapPicker'),
 			map: document.getElementById('gameMap'),
+			mapPickerBtn: document.getElementById('mapPickerBtn'),
+			mapDrawer: document.getElementById('mapDrawer'),
+			mapDrawerCloseBtn: document.getElementById('mapDrawerCloseBtn'),
 		}
 
 		this.state = {
@@ -77,6 +80,14 @@ const ClientApp = {
 
 	showStartButton() {
 		this.el.startBtn.classList.remove(this.classes.hidden);
+	},
+
+	hideMapPickerButton() {
+		this.el.mapPickerBtn.classList.add(this.classes.hidden);
+	},
+
+	showMapPickerButton() {
+		this.el.mapPickerBtn.classList.remove(this.classes.hidden);
 	},
 
 	setBanner(msg, show = true, persist = false) {
@@ -221,9 +232,6 @@ const ClientApp = {
 		// Render map picker if maps list provided
 		if (Array.isArray(s.maps) && this.el.mapPicker) {
 			this.renderMapPicker(s.maps, s.selectedMap);
-			// show picker only in lobby or ended
-			const showPicker = s.phase === 'lobby' || s.phase === 'ended';
-			this.el.mapPicker.classList.toggle(this.classes.hidden, !showPicker);
 		}
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
@@ -284,8 +292,6 @@ const ClientApp = {
 			img.src = mapObj.thumb;
 			img.alt = 'map';
 			img.className = 'map-picker--thumb';
-			img.width = 300;
-			img.height = 300;
 			img.loading = 'lazy';
 			btn.appendChild(img);
 			if (mapObj.full === selected) btn.classList.add('selected');
@@ -305,11 +311,13 @@ const ClientApp = {
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
+		this.showMapPickerButton();
 		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
 		this.setBanner(hint, true, true);
 	},
 
 	setPlayingState(treasure, roundEndsAt) {
+		this.hideMapPickerButton();
 		this.showResetButton();
 		this.hideStartButton();
 		this.setBanner('Find the treasure NOW!', true);
@@ -318,6 +326,7 @@ const ClientApp = {
 	},
 
 	setRoundOverState(players, winnerSocketId) {
+		this.hideMapPickerButton();
 		this.clearTreasure();
 		const isSinglePlayer = players.length === 1;
 		if (winnerSocketId) {
@@ -333,9 +342,11 @@ const ClientApp = {
 	},
 
 	setEndedState(players) {
+		this.hideMapPickerButton();
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
+		this.showMapPickerButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;
@@ -363,6 +374,16 @@ const ClientApp = {
 
 		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
 		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
+		this.el.mapPickerBtn.addEventListener('click', () => this.openMapDrawer());
+		this.el.mapDrawerCloseBtn.addEventListener('click', () => this.closeMapDrawer());
+		this.el.mapDrawer.querySelector('.map-drawer--overlay').addEventListener('click', () => this.closeMapDrawer());
+
+		// Close drawer on escape key
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && !this.el.mapDrawer.classList.contains(this.classes.hidden)) {
+				this.closeMapDrawer();
+			}
+		});
 
 		window.addEventListener('resize', () => {
 			if (!this.state.currentTreasureId) return;
@@ -378,6 +399,18 @@ const ClientApp = {
 			.replaceAll('>', '&gt;')
 			.replaceAll(`'`, '&quot;')
 			.replaceAll(`'`, '&#039;');
+	},
+
+	openMapDrawer() {
+		this.el.mapDrawer.classList.remove(this.classes.hidden);
+		// Focus close button for accessibility
+		setTimeout(() => this.el.mapDrawerCloseBtn.focus(), 100);
+	},
+
+	closeMapDrawer() {
+		this.el.mapDrawer.classList.add(this.classes.hidden);
+		// Return focus to map picker button
+		this.el.mapPickerBtn.focus();
 	}
 };
 
