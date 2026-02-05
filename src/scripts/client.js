@@ -231,9 +231,14 @@ const ClientApp = {
 		if (s.selectedMap && this.el.map && this.el.map.src !== s.selectedMap) {
 			this.el.map.src = s.selectedMap;
 		}
-		// Render map picker if maps list provided
-		if (Array.isArray(s.maps) && this.el.mapPicker) {
+		// Render map picker if maps list provided (once)
+		if (Array.isArray(s.maps) && this.el.mapPicker && !this.state.mapPickerRendered) {
 			this.renderMapPicker(s.maps, s.selectedMap);
+			this.state.mapPickerRendered = true;
+		}
+		// Update selected map in picker
+		if (s.selectedMap && this.state.mapPickerRendered) {
+			this.updateMapPickerSelection(s.selectedMap);
 		}
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
@@ -282,37 +287,37 @@ const ClientApp = {
 		}, timeout);
 	},
 
-	onMapPickerItemClick(selectedItem) {
+	updateMapPickerSelection(selectedMapSrc) {
+		if (!this.el.mapPickerItems) return;
 		this.el.mapPickerItems.forEach((item) => {
 			item.classList.remove('selected');
+			if (item.dataset.mapFull === selectedMapSrc) {
+				item.classList.add('selected');
+			}
 		});
-		selectedItem.classList.add('selected');
 	},
 
 	renderMapPicker(maps, selected) {
-		if (!this.state.mapPickerRendered) {
-			this.el.mapPicker.innerHTML = '';
-			for (const mapObj of maps) {
-				const btn = document.createElement('button');
-				btn.className = 'map-picker--item';
-				btn.type = 'button';
-				btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
-				const img = document.createElement('img');
-				img.src = mapObj.thumb;
-				img.alt = 'map';
-				img.className = 'map-picker--thumb';
-				img.loading = 'lazy';
-				btn.appendChild(img);
-				if (mapObj.full === selected) btn.classList.add('selected');
-				btn.addEventListener('click', () => {
-					this.socket.emit('selectMap', mapObj.full);
-					this.onMapPickerItemClick(btn);
-				});
-				this.el.mapPicker.appendChild(btn);
-			}
-			this.el.mapPickerItems = document.querySelectorAll('.map-picker--item');
-			this.state.mapPickerRendered = true;
+		this.el.mapPicker.innerHTML = '';
+		for (const mapObj of maps) {
+			const btn = document.createElement('button');
+			btn.className = 'map-picker--item';
+			btn.type = 'button';
+			btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
+			btn.dataset.mapFull = mapObj.full;
+			const img = document.createElement('img');
+			img.src = mapObj.thumb;
+			img.alt = 'map';
+			img.className = 'map-picker--thumb';
+			img.loading = 'lazy';
+			btn.appendChild(img);
+			if (mapObj.full === selected) btn.classList.add('selected');
+			btn.addEventListener('click', () => {
+				this.socket.emit('selectMap', mapObj.full);
+			});
+			this.el.mapPicker.appendChild(btn);
 		}
+		this.el.mapPickerItems = document.querySelectorAll('.map-picker--item');
 	},
 
 	saveName() {
