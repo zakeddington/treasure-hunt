@@ -40,6 +40,7 @@ const ClientApp = {
 			mapPicker: document.getElementById('mapPicker'),
 			map: document.getElementById('gameMap'),
 			mapPickerBtn: document.getElementById('mapPickerBtn'),
+			mapPickerItems: null,
 			mapDrawer: document.getElementById('mapDrawer'),
 			mapDrawerCloseBtn: document.getElementById('mapDrawerCloseBtn'),
 		}
@@ -49,6 +50,7 @@ const ClientApp = {
 			currentTreasureId: null,
 			bannerTimeoutId: null,
 			timerIntervalId: null,
+			mapPickerRendered: false,
 		}
 	},
 
@@ -280,25 +282,36 @@ const ClientApp = {
 		}, timeout);
 	},
 
+	onMapPickerItemClick(selectedItem) {
+		this.el.mapPickerItems.forEach((item) => {
+			item.classList.remove('selected');
+		});
+		selectedItem.classList.add('selected');
+	},
+
 	renderMapPicker(maps, selected) {
-		if (!this.el.mapPicker) return;
-		this.el.mapPicker.innerHTML = '';
-		for (const mapObj of maps) {
-			const btn = document.createElement('button');
-			btn.className = 'map-picker--item';
-			btn.type = 'button';
-			btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
-			const img = document.createElement('img');
-			img.src = mapObj.thumb;
-			img.alt = 'map';
-			img.className = 'map-picker--thumb';
-			img.loading = 'lazy';
-			btn.appendChild(img);
-			if (mapObj.full === selected) btn.classList.add('selected');
-			btn.addEventListener('click', () => {
-				this.socket.emit('selectMap', mapObj.full);
-			});
-			this.el.mapPicker.appendChild(btn);
+		if (!this.state.mapPickerRendered) {
+			this.el.mapPicker.innerHTML = '';
+			for (const mapObj of maps) {
+				const btn = document.createElement('button');
+				btn.className = 'map-picker--item';
+				btn.type = 'button';
+				btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
+				const img = document.createElement('img');
+				img.src = mapObj.thumb;
+				img.alt = 'map';
+				img.className = 'map-picker--thumb';
+				img.loading = 'lazy';
+				btn.appendChild(img);
+				if (mapObj.full === selected) btn.classList.add('selected');
+				btn.addEventListener('click', () => {
+					this.socket.emit('selectMap', mapObj.full);
+					this.onMapPickerItemClick(btn);
+				});
+				this.el.mapPicker.appendChild(btn);
+			}
+			this.el.mapPickerItems = document.querySelectorAll('.map-picker--item');
+			this.state.mapPickerRendered = true;
 		}
 	},
 
@@ -403,13 +416,11 @@ const ClientApp = {
 
 	openMapDrawer() {
 		this.el.mapDrawer.classList.remove(this.classes.hidden);
-		// Focus close button for accessibility
 		setTimeout(() => this.el.mapDrawerCloseBtn.focus(), 100);
 	},
 
 	closeMapDrawer() {
 		this.el.mapDrawer.classList.add(this.classes.hidden);
-		// Return focus to map picker button
 		this.el.mapPickerBtn.focus();
 	}
 };
