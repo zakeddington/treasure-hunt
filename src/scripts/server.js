@@ -11,6 +11,27 @@ app.use(express.static(path.join(__dirname, '../../public')));
 
 const PORT = process.env.PORT || 3000;
 
+const maps = [
+	'/assets/images/map-01.jpg',
+	'/assets/images/map-02.jpg',
+	'/assets/images/map-03.jpg',
+	'/assets/images/map-04.jpg',
+	'/assets/images/map-05.jpg',
+	'/assets/images/map-06.jpg',
+	'/assets/images/map-07.jpg',
+	'/assets/images/map-08.jpg',
+	'/assets/images/map-09.jpg',
+	'/assets/images/map-10.jpg',
+	'/assets/images/map-11.jpg',
+	'/assets/images/map-12.jpg',
+	'/assets/images/map-13.jpg',
+	'/assets/images/map-14.jpg',
+	'/assets/images/map-15.jpg',
+	'/assets/images/map-16.jpg',
+	'/assets/images/map-17.jpg',
+	'/assets/images/map-18.jpg',
+];
+
 const state = {
 	phase: 'lobby',
 	players: new Map(),
@@ -19,8 +40,13 @@ const state = {
 	roundLength: 60000, // ms
 	treasure: null,
 	winnerSocketId: null,
-	roundEndsAt: null
+	roundEndsAt: null,
+	selectedMap: null,
 };
+
+function pickRandomMap() {
+    return maps[Math.floor(Math.random() * maps.length)];
+}
 
 function playersList() {
 	return Array.from(state.players.entries()).map(([id, p]) => ({
@@ -43,7 +69,8 @@ function broadcastState() {
 			size: state.treasure.size
 		} : null,
 		winnerSocketId: state.winnerSocketId,
-		roundEndsAt: state.roundEndsAt
+		roundEndsAt: state.roundEndsAt,
+		selectedMap: state.selectedMap
 	});
 }
 
@@ -101,6 +128,9 @@ function resetScores() {
 io.on('connection', (socket) => {
 	state.players.set(socket.id, { name: 'Player', score: 0 });
 
+	// Ensure a map is selected for initial connection
+	if (!state.selectedMap) state.selectedMap = pickRandomMap();
+
 	socket.on('join', (name) => {
 		const clean = String(name || '').trim().slice(0, 16) || 'Player';
 		const p = state.players.get(socket.id);
@@ -110,6 +140,8 @@ io.on('connection', (socket) => {
 
 	socket.on('start', () => {
 		resetScores();
+		// New game: pick a new random map and start first round
+		state.selectedMap = pickRandomMap();
 		state.round = 1;
 		spawnTreasure();
 	});

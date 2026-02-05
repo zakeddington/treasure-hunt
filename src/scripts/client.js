@@ -37,6 +37,7 @@ const ClientApp = {
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
 			timer: document.querySelector('.game-board--round-timer'),
+			map: document.getElementById('gameMap'),
 		}
 
 		this.state = {
@@ -212,6 +213,10 @@ const ClientApp = {
 	},
 
 	handleStateUpdate(s) {
+		// Apply selected map if provided
+		if (s.selectedMap && this.el.map && this.el.map.src !== s.selectedMap) {
+			this.el.map.src = s.selectedMap;
+		}
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
 		this.saveName();
