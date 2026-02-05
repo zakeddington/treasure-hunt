@@ -34,6 +34,18 @@
 			border: 3px solid var(--color-btn-primary-bg-default);
 			position: relative;
 
+			&::before {
+				background: var(--color-bg-opacity-light);
+				content: '';
+				display: block;
+				height: 100%;
+				position: absolute;
+				right: 0;
+				top: 0;
+				width: 100%;
+				z-index: var(--z-index-default);
+			}
+
 			&::after {
 				align-items: center;
 				background: var(--color-btn-primary-bg-default);
@@ -48,6 +60,7 @@
 				right: var(--spacing-xs);
 				top: var(--spacing-xs);
 				width: var(--spacing-lg);
+				z-index: var(--z-index-above-default);
 			}
 
 			&:hover,
