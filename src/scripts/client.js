@@ -1,8 +1,11 @@
+import { MapPicker } from './MapPicker.js';
+
 const ClientApp = {
 	socket: io(),
 
 	init() {
 		this.initElements();
+		this.initMapPicker();
 		this.addEventListeners();
 		this.setupSocket();
 	},
@@ -37,12 +40,6 @@ const ClientApp = {
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
 			timer: document.querySelector('.game-board--round-timer'),
-			mapPicker: document.getElementById('mapPicker'),
-			map: document.getElementById('gameMap'),
-			mapPickerBtn: document.getElementById('mapPickerBtn'),
-			mapPickerItems: null,
-			mapDrawer: document.getElementById('mapDrawer'),
-			mapDrawerCloseBtn: document.getElementById('mapDrawerCloseBtn'),
 		}
 
 		this.state = {
@@ -50,8 +47,13 @@ const ClientApp = {
 			currentTreasureId: null,
 			bannerTimeoutId: null,
 			timerIntervalId: null,
-			mapPickerRendered: false,
 		}
+	},
+
+	initMapPicker() {
+		this.mapPicker = new MapPicker({
+			socket: this.socket,
+		});
 	},
 
 	setupSocket() {
@@ -85,11 +87,11 @@ const ClientApp = {
 	},
 
 	hideMapPickerButton() {
-		this.el.mapPickerBtn.classList.add(this.classes.hidden);
+		this.mapPicker.hide();
 	},
 
 	showMapPickerButton() {
-		this.el.mapPickerBtn.classList.remove(this.classes.hidden);
+		this.mapPicker.show();
 	},
 
 	setBanner(msg, show = true, persist = false) {
@@ -227,19 +229,10 @@ const ClientApp = {
 	},
 
 	handleStateUpdate(s) {
-		// Apply selected map if provided
-		if (s.selectedMap && this.el.map && this.el.map.src !== s.selectedMap) {
-			this.el.map.src = s.selectedMap;
-		}
-		// Render map picker if maps list provided (once)
-		if (Array.isArray(s.maps) && this.el.mapPicker && !this.state.mapPickerRendered) {
-			this.renderMapPicker(s.maps, s.selectedMap);
-			this.state.mapPickerRendered = true;
-		}
-		// Update selected map in picker
-		if (s.selectedMap && this.state.mapPickerRendered) {
-			this.updateMapPickerSelection(s.selectedMap);
-		}
+		// Handle map picker and map updates
+		this.mapPicker.setMap(s.selectedMap);
+		this.mapPicker.handleStateUpdate(s.maps, s.selectedMap);
+
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
 		this.saveName();
@@ -285,39 +278,6 @@ const ClientApp = {
 				this.el.scoreBoard.appendChild(li);
 			}
 		}, timeout);
-	},
-
-	updateMapPickerSelection(selectedMapSrc) {
-		if (!this.el.mapPickerItems) return;
-		this.el.mapPickerItems.forEach((item) => {
-			item.classList.remove('selected');
-			if (item.dataset.mapFull === selectedMapSrc) {
-				item.classList.add('selected');
-			}
-		});
-	},
-
-	renderMapPicker(maps, selected) {
-		this.el.mapPicker.innerHTML = '';
-		for (const mapObj of maps) {
-			const btn = document.createElement('button');
-			btn.className = 'map-picker--item';
-			btn.type = 'button';
-			btn.setAttribute('aria-label', `Select map ${mapObj.full}`);
-			btn.dataset.mapFull = mapObj.full;
-			const img = document.createElement('img');
-			img.src = mapObj.thumb;
-			img.alt = 'map';
-			img.className = 'map-picker--thumb';
-			img.loading = 'lazy';
-			btn.appendChild(img);
-			if (mapObj.full === selected) btn.classList.add('selected');
-			btn.addEventListener('click', () => {
-				this.socket.emit('selectMap', mapObj.full);
-			});
-			this.el.mapPicker.appendChild(btn);
-		}
-		this.el.mapPickerItems = document.querySelectorAll('.map-picker--item');
 	},
 
 	saveName() {
@@ -392,16 +352,6 @@ const ClientApp = {
 
 		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
 		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
-		this.el.mapPickerBtn.addEventListener('click', () => this.openMapDrawer());
-		this.el.mapDrawerCloseBtn.addEventListener('click', () => this.closeMapDrawer());
-		this.el.mapDrawer.querySelector('.map-drawer--overlay').addEventListener('click', () => this.closeMapDrawer());
-
-		// Close drawer on escape key
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && !this.el.mapDrawer.classList.contains(this.classes.hidden)) {
-				this.closeMapDrawer();
-			}
-		});
 
 		window.addEventListener('resize', () => {
 			if (!this.state.currentTreasureId) return;
@@ -417,16 +367,6 @@ const ClientApp = {
 			.replaceAll('>', '&gt;')
 			.replaceAll(`'`, '&quot;')
 			.replaceAll(`'`, '&#039;');
-	},
-
-	openMapDrawer() {
-		this.el.mapDrawer.classList.remove(this.classes.hidden);
-		setTimeout(() => this.el.mapDrawerCloseBtn.focus(), 100);
-	},
-
-	closeMapDrawer() {
-		this.el.mapDrawer.classList.add(this.classes.hidden);
-		this.el.mapPickerBtn.focus();
 	}
 };
 
