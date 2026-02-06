@@ -2,12 +2,16 @@ export class MapPicker {
 	constructor(config) {
 		this.socket = config.socket;
 
+		this.config = {
+			mapAnimSpeed: 300,
+		};
+
 		this.classes = {
 			hidden: 'hidden',
 			selected: 'selected',
 			elMapItem: 'map-picker--item',
 			elMapThumb: 'map-picker--thumb',
-		}
+		};
 
 		this.el = {
 			map: document.getElementById('gameMap'),
@@ -34,7 +38,34 @@ export class MapPicker {
 	// -----------------------------------------------------------------------
 	setMap(mapSrc) {
 		if (mapSrc && this.el.map && this.el.map.src !== mapSrc) {
-			this.el.map.src = mapSrc;
+			// Preload the new image
+			const newImage = new Image();
+
+			newImage.onload = () => {
+				// Fade out current image
+				this.el.map.style.opacity = '0';
+
+				// Wait for fade out, then swap and fade in
+				setTimeout(() => {
+					this.el.map.src = mapSrc;
+					// Force layout to ensure the src change is processed
+					void this.el.map.offsetWidth;
+					this.el.map.style.opacity = '1';
+				}, this.config.mapAnimSpeed);
+			};
+
+			// Handle error case - still swap but without preload
+			newImage.onerror = () => {
+				this.el.map.style.opacity = '0';
+				setTimeout(() => {
+					this.el.map.src = mapSrc;
+					void this.el.map.offsetWidth;
+					this.el.map.style.opacity = '1';
+				}, this.config.mapAnimSpeed);
+			};
+
+			// Start preloading
+			newImage.src = mapSrc;
 		}
 	}
 

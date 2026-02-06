@@ -7,6 +7,7 @@ $breakpoint-desktop: 900px;
 	--color-palette-blue-300-rgb: 61, 137, 168;
 	--color-palette-blue-500: #276278;
 	--color-palette-blue-800: #1F4E79;
+	--color-palette-blue-900: #0f2e45;
 
 	--color-palette-red-300: #E63946;
 	--color-palette-red-500: #c31317;
@@ -24,6 +25,7 @@ $breakpoint-desktop: 900px;
 	--color-bg-primary: var(--color-palette-blue-800);
 	--color-bg-secondary: var(--color-palette-blue-300);
 	--color-bg-secondary-rgb: var(--color-palette-blue-300-rgb);
+	--color-bg-tertiary: var(--color-palette-blue-900);
 	--color-bg-opacity-light: rgba(0, 0, 0, 0.25);
 	--color-bg-opacity-med: rgba(0, 0, 0, 0.5);
 	--color-bg-opacity-dark: rgba(0, 0, 0, 0.75);

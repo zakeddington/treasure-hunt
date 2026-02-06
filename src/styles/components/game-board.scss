@@ -30,11 +30,12 @@
 }
 
 .game-board {
-	background: var(--color-shape-border);
+	background: var(--color-bg-tertiary);
 	clip-path: polygon(0 0,100% var(--shape-offset),calc(100% - var(--shape-offset)) 100%,var(--shape-offset) 100%);
 	display: flex;
 	flex-direction: column;
 	flex: 1;
+	height: 90vh;
 	max-height: 90vh;
 	max-width: 100vw;
 	overflow: hidden;
@@ -91,9 +92,11 @@
 		width: 3000px;
 	}
 
-	&--image {
+	&--map {
 		display: block;
 		margin: 0;
+		opacity: 0;
+		transition: opacity var(--anim-speed) var(--anim-ease); // update mapAnimSpeed if changing
 	}
 
 	&--banner {
