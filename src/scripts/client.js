@@ -2,7 +2,7 @@
 import { PlayerNameManager } from './PlayerNameManager.js';
 import { Scoreboard } from './Scoreboard.js';
 import { MapPicker } from './MapPicker.js';
-import { escapeHtml } from './utils.js';
+import { Banner } from './Banner.js';
 
 const ClientApp = {
 	socket: io(),
@@ -44,7 +44,6 @@ const ClientApp = {
 		this.state = {
 			myId: null,
 			currentTreasureId: null,
-			bannerTimeoutId: null,
 			timerIntervalId: null,
 		};
 
@@ -52,6 +51,7 @@ const ClientApp = {
 			playerNameManager: null,
 			scoreboard: null,
 			mapPicker: null,
+			banner: null,
 		};
 	},
 
@@ -67,6 +67,13 @@ const ClientApp = {
 
 		this.components.mapPicker = new MapPicker({
 			socket: this.socket,
+		});
+
+		this.components.banner = new Banner({
+			el: this.el.banner,
+			classes: this.classes,
+			autoHideMs: 3000,
+			fadeMs: 300,
 		});
 	},
 
@@ -92,31 +99,6 @@ const ClientApp = {
 
 	showStartButton() {
 		this.el.startBtn.classList.remove(this.classes.hidden);
-	},
-
-	setBanner(msg, show = true, persist = false) {
-		// Cancel any pending fade-out
-		if (this.state.bannerTimeoutId) {
-			clearTimeout(this.state.bannerTimeoutId);
-			this.state.bannerTimeoutId = null;
-		}
-
-		this.el.banner.innerHTML = msg;
-		this.el.banner.classList.remove(this.classes.hidden, this.classes.fadingOut);
-
-		if (show && !persist) {
-			// Schedule fade-out after 3 seconds (unless persisting)
-			this.state.bannerTimeoutId = setTimeout(() => {
-				this.el.banner.classList.add(this.classes.fadingOut);
-				// After fade completes, hide it
-				const fadeTimeout = setTimeout(() => {
-					this.el.banner.classList.add(this.classes.hidden);
-					this.state.bannerTimeoutId = null;
-				}, 300); // Match CSS transition duration
-			}, 3000);
-		} else if (!show) {
-			this.el.banner.classList.add(this.classes.hidden);
-		}
 	},
 
 	clearTreasure() {
@@ -253,21 +235,19 @@ const ClientApp = {
 		this.el.maxRoundsText.textContent = String(maxRounds);
 	},
 
-
 	setLobbyState(players) {
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
 		this.components.mapPicker.showMapPickerButton();
-		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
-		this.setBanner(hint, true, true);
+		this.components.banner.showLobby(players.length > 0);
 	},
 
 	setPlayingState(treasure, roundEndsAt) {
 		this.components.mapPicker.hideMapPickerButton();
 		this.showResetButton();
 		this.hideStartButton();
-		this.setBanner('Find the treasure NOW!', true);
+		this.components.banner.showPlaying();
 		this.placeTreasure(treasure);
 		this.startTimer(roundEndsAt);
 	},
@@ -276,16 +256,12 @@ const ClientApp = {
 		this.components.mapPicker.hideMapPickerButton();
 		this.clearTreasure();
 		const isSinglePlayer = players.length === 1;
-		if (winnerSocketId) {
-			const winner = players.find(p => p.id === winnerSocketId);
-			if (isSinglePlayer) {
-				this.setBanner('Point earned! 🎉', true);
-			} else {
-				this.setBanner(winner ? `Point for ${winner.name}!` : 'Point scored!', true);
-			}
-		} else {
-			this.setBanner(isSinglePlayer ? 'Treasure expired! Next round…' : 'No one got it! Next round…', true);
-		}
+		const winner = winnerSocketId ? players.find(p => p.id === winnerSocketId) : null;
+		this.components.banner.showRoundOver({
+			isSinglePlayer,
+			hasWinner: Boolean(winnerSocketId),
+			winnerName: winner ? winner.name : null,
+		});
 	},
 
 	setEndedState(players) {
@@ -299,14 +275,13 @@ const ClientApp = {
 		const isSinglePlayer = players.length === 1;
 		const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score;
 
-		if (isSinglePlayer) {
-			this.setBanner(`<span class="text-size-large">Game Over</span><br />Final Score: ${winner.score}`, true, true);
-		} else if (isTie) {
-			this.setBanner(`<span class="text-size-large">Game Over</span><br />🤝 It's a Tie!`, true, true);
-		} else {
-			const medal = winner.id === this.state.myId ? '👑' : '🏆';
-			this.setBanner(`<span class="text-size-large">Game Over<br />${medal}</span><br />${escapeHtml(winner.name)} wins!`, true, true);
-		}
+		this.components.banner.showEnded({
+			isSinglePlayer,
+			isTie,
+			isWinner: winner?.id === this.state.myId,
+			winnerName: winner?.name,
+			winnerScore: winner?.score,
+		});
 	},
 
 	addEventListeners() {
