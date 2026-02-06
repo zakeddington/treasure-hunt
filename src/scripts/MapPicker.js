@@ -37,7 +37,14 @@ export class MapPicker {
 	// Public methods (called from client.js)
 	// -----------------------------------------------------------------------
 	setMap(mapSrc) {
-		if (mapSrc && this.el.map && this.el.map.src !== mapSrc) {
+		const currentSrc = this.el.map?.dataset?.mapSrc;
+		if (mapSrc && this.el.map && currentSrc !== mapSrc) {
+			if (!currentSrc) {
+				this.el.map.src = mapSrc;
+				this.el.map.dataset.mapSrc = mapSrc;
+				this.el.map.style.opacity = '1';
+				return;
+			}
 			// Preload the new image
 			const newImage = new Image();
 
@@ -48,6 +55,7 @@ export class MapPicker {
 				// Wait for fade out, then swap and fade in
 				setTimeout(() => {
 					this.el.map.src = mapSrc;
+					this.el.map.dataset.mapSrc = mapSrc;
 					// Force layout to ensure the src change is processed
 					void this.el.map.offsetWidth;
 					this.el.map.style.opacity = '1';
@@ -59,6 +67,7 @@ export class MapPicker {
 				this.el.map.style.opacity = '0';
 				setTimeout(() => {
 					this.el.map.src = mapSrc;
+					this.el.map.dataset.mapSrc = mapSrc;
 					void this.el.map.offsetWidth;
 					this.el.map.style.opacity = '1';
 				}, this.config.mapAnimSpeed);
