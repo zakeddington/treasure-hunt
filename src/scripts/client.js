@@ -4,6 +4,7 @@ import { Scoreboard } from './components/Scoreboard.js';
 import { MapPicker } from './components/MapPicker.js';
 import { Banner } from './components/Banner.js';
 import { Gameboard } from './components/Gameboard.js';
+import { StartResetControls } from './components/StartResetControls.js';
 
 const ClientApp = {
 	socket: io(),
@@ -11,7 +12,6 @@ const ClientApp = {
 	init() {
 		this.initElements();
 		this.initComponents();
-		this.addEventListeners();
 		this.setupSocket();
 	},
 
@@ -21,13 +21,7 @@ const ClientApp = {
 			animSpeedTreasure: 1000, // ms
 		};
 
-		this.classes = {
-			hidden: 'hidden',
-		};
-
 		this.el = {
-			startBtn: document.getElementById('startBtn'),
-			resetBtn: document.getElementById('resetBtn'),
 			scoreBoard: document.getElementById('scoreboard'),
 			gameBoard: document.getElementById('gameBoard'),
 		};
@@ -42,6 +36,7 @@ const ClientApp = {
 			mapPicker: null,
 			banner: null,
 			gameboard: null,
+			controls: null,
 		};
 	},
 
@@ -66,6 +61,10 @@ const ClientApp = {
 			animSpeedTreasure: this.config.animSpeedTreasure,
 			elScoreBoard: this.el.scoreBoard,
 		});
+
+		this.components.controls = new StartResetControls({
+			socket: this.socket,
+		});
 	},
 
 	setupSocket() {
@@ -74,22 +73,6 @@ const ClientApp = {
 		});
 
 		this.socket.on('state', (s) => this.handleStateUpdate(s));
-	},
-
-	hideResetButton() {
-		this.el.resetBtn.classList.add(this.classes.hidden);
-	},
-
-	showResetButton() {
-		this.el.resetBtn.classList.remove(this.classes.hidden);
-	},
-
-	hideStartButton() {
-		this.el.startBtn.classList.add(this.classes.hidden);
-	},
-
-	showStartButton() {
-		this.el.startBtn.classList.remove(this.classes.hidden);
 	},
 
 
@@ -115,16 +98,14 @@ const ClientApp = {
 
 	setLobbyState(players) {
 		this.components.gameboard.clearTreasure();
-		this.hideResetButton();
-		this.showStartButton();
+		this.components.controls.showStart();
 		this.components.mapPicker.showMapPickerButton();
 		this.components.banner.showLobby(players.length > 0);
 	},
 
 	setPlayingState(treasureObj, roundEndsAt) {
 		this.components.mapPicker.hideMapPickerButton();
-		this.showResetButton();
-		this.hideStartButton();
+		this.components.controls.showReset();
 		this.components.banner.showPlaying();
 		this.components.gameboard.placeTreasure(treasureObj);
 		this.components.gameboard.startTimer(roundEndsAt);
@@ -133,6 +114,7 @@ const ClientApp = {
 	setRoundOverState(players, winnerSocketId) {
 		this.components.mapPicker.hideMapPickerButton();
 		this.components.gameboard.clearTreasure();
+		this.components.controls.showReset();
 		const isSinglePlayer = players.length === 1;
 		const winner = winnerSocketId ? players.find(p => p.id === winnerSocketId) : null;
 		this.components.banner.showRoundOver({
@@ -145,8 +127,7 @@ const ClientApp = {
 	setEndedState(players) {
 		this.components.mapPicker.hideMapPickerButton();
 		this.components.gameboard.clearTreasure();
-		this.hideResetButton();
-		this.showStartButton();
+		this.components.controls.showStart();
 		this.components.mapPicker.showMapPickerButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
@@ -160,11 +141,6 @@ const ClientApp = {
 			winnerName: winner?.name,
 			winnerScore: winner?.score,
 		});
-	},
-
-	addEventListeners() {
-		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
-		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
 	},
 
 };
