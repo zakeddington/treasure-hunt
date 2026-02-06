@@ -1,5 +1,5 @@
 
-import { JoinGameForm } from './JoinGameForm.js';
+import { PlayerNameManager } from './PlayerNameManager.js';
 import { MapPicker } from './MapPicker.js';
 
 const ClientApp = {
@@ -7,7 +7,7 @@ const ClientApp = {
 
 	init() {
 		this.initElements();
-		this.initJoinForm();
+		this.initPlayerNameManager();
 		this.initMapPicker();
 		this.addEventListeners();
 		this.setupSocket();
@@ -51,8 +51,8 @@ const ClientApp = {
 		}
 	},
 
-	initJoinForm() {
-		this.joinForm = new JoinGameForm({
+	initPlayerNameManager() {
+		this.playerNameManager = new PlayerNameManager({
 			socket: this.socket,
 		});
 	},
@@ -261,7 +261,7 @@ const ClientApp = {
 			for (const p of [...players]) {
 				const li = document.createElement('li');
 				li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
-				li.innerHTML = `<span>${this.escapeHtml(p.name)}</span><span class="scoreboard--item-score">💎 ${p.score}</span>`;
+				li.innerHTML = `<span class="scoreboard--item-name">${this.escapeHtml(p.name)}</span><span class="scoreboard--item-score">💎 ${p.score}</span>`;
 				if (winnerSocketId && p.id === winnerSocketId) {
 					li.classList.add('anim-score');
 					// remove class after animation completes
@@ -269,6 +269,8 @@ const ClientApp = {
 				}
 				this.el.scoreBoard.appendChild(li);
 			}
+			// Enable click-to-edit on current player's name
+			this.playerNameManager.enableScoreboardEditing(this.el.scoreBoard, this.state.myId);
 		}, timeout);
 	},
 

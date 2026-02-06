@@ -1,32 +1,61 @@
-.scoreboard {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.scoreboard--item {
-	background: var(--color-bg-opacity-med);
-	display: flex;
-	justify-content: space-between;
-	padding: var(--spacing-xs) var(--spacing-sm);
-	transition: all var(--anim-speed-slow) var(--anim-ease);
-
-	&:nth-child(odd) {
-		background: var(--color-bg-opacity-light);
-	}
-
-	&.current-player {
-		color: var(--color-text-secondary);
-	}
-
-	&.anim-score {
-		animation: animScore 1000ms cubic-bezier(.2,.9,.3,1);
-		transform-origin: center center;
-	}
-}
-
 @keyframes animScore {
 	0% { transform: scale(1); }
 	40% { transform: scale(1.025); background: var(--color-bg-opacity-highlight); }
 	100% { transform: scale(1); }
+}
+
+.scoreboard {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	// Player row
+	&--item {
+		background: var(--color-bg-opacity-med);
+		display: flex;
+		justify-content: space-between;
+		padding: var(--spacing-xs) var(--spacing-sm);
+		transition: all var(--anim-speed-slow) var(--anim-ease);
+
+		&:nth-child(odd) {
+			background: var(--color-bg-opacity-light);
+		}
+
+		&.current-player {
+			color: var(--color-text-secondary);
+
+			// Text name
+			.scoreboard--item-name {
+				cursor: pointer;
+			}
+		}
+
+		&.anim-score {
+			animation: animScore 1000ms cubic-bezier(.2,.9,.3,1);
+			transform-origin: center center;
+		}
+
+		// Editable name input field
+		&-name-editable {
+			background: transparent;
+			border-radius: var(--spacing-xxs);
+			border: 2px solid var(--color-text-secondary);
+			color: var(--color-text-secondary);
+			display: inline-flex;
+			flex: 1;
+			font-family: inherit;
+			font-size: inherit;
+			max-width: 70%;
+			padding: 0 var(--spacing-xs);
+
+			&:focus {
+				outline: none;
+			}
+		}
+
+		// Score display
+		&-score	{
+			display: inline-flex;
+		}
+	}
 }
