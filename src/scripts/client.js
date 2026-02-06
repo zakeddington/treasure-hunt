@@ -22,7 +22,6 @@ const ClientApp = {
 
 		this.classes = {
 			hidden: 'hidden',
-			fadingOut: 'fading-out',
 			treasure: 'treasure',
 		};
 
@@ -35,7 +34,6 @@ const ClientApp = {
 			resetBtn: document.getElementById('resetBtn'),
 			scoreBoard: document.getElementById('scoreboard'),
 			gameBoard: document.getElementById('gameBoard'),
-			banner: document.getElementById('banner'),
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
 			timer: document.querySelector('.game-board--round-timer'),
@@ -69,12 +67,7 @@ const ClientApp = {
 			socket: this.socket,
 		});
 
-		this.components.banner = new Banner({
-			el: this.el.banner,
-			classes: this.classes,
-			autoHideMs: 3000,
-			fadeMs: 300,
-		});
+		this.components.banner = new Banner();
 	},
 
 	setupSocket() {

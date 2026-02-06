@@ -1,11 +1,22 @@
 import { escapeHtml } from './utils.js';
 
 export class Banner {
-	constructor(config) {
-		this.el = config.el;
-		this.classes = config.classes;
-		this.autoHideMs = config.autoHideMs ?? 3000;
-		this.fadeMs = config.fadeMs ?? 300;
+	constructor() {
+
+		this.config = {
+			showDuration: 3000,
+			animSpeedFadeOut: 300,
+		};
+
+		this.classes = {
+			hidden: 'hidden',
+			fadingOut: 'fading-out',
+		};
+
+		this.el = {
+			banner: document.getElementById('banner'),
+		};
+
 		this.timeoutId = null;
 	}
 
@@ -15,19 +26,19 @@ export class Banner {
 			this.timeoutId = null;
 		}
 
-		this.el.innerHTML = msg;
-		this.el.classList.remove(this.classes.hidden, this.classes.fadingOut);
+		this.el.banner.innerHTML = msg;
+		this.el.banner.classList.remove(this.classes.hidden, this.classes.fadingOut);
 
 		if (show && !persist) {
 			this.timeoutId = setTimeout(() => {
-				this.el.classList.add(this.classes.fadingOut);
+				this.el.banner.classList.add(this.classes.fadingOut);
 				setTimeout(() => {
-					this.el.classList.add(this.classes.hidden);
+					this.el.banner.classList.add(this.classes.hidden);
 					this.timeoutId = null;
-				}, this.fadeMs);
-			}, this.autoHideMs);
+				}, this.config.animSpeedFadeOut);
+			}, this.config.showDuration);
 		} else if (!show) {
-			this.el.classList.add(this.classes.hidden);
+			this.el.banner.classList.add(this.classes.hidden);
 		}
 	}
 
