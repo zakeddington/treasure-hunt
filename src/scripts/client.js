@@ -1,3 +1,5 @@
+
+import { JoinGameForm } from './JoinGameForm.js';
 import { MapPicker } from './MapPicker.js';
 
 const ClientApp = {
@@ -5,6 +7,7 @@ const ClientApp = {
 
 	init() {
 		this.initElements();
+		this.initJoinForm();
 		this.initMapPicker();
 		this.addEventListeners();
 		this.setupSocket();
@@ -30,8 +33,6 @@ const ClientApp = {
 		}
 
 		this.el = {
-			nameInput: document.getElementById('nameInput'),
-			joinBtn: document.getElementById('joinBtn'),
 			startBtn: document.getElementById('startBtn'),
 			resetBtn: document.getElementById('resetBtn'),
 			scoreBoard: document.getElementById('scoreboard'),
@@ -50,6 +51,12 @@ const ClientApp = {
 		}
 	},
 
+	initJoinForm() {
+		this.joinForm = new JoinGameForm({
+			socket: this.socket,
+		});
+	},
+
 	initMapPicker() {
 		this.mapPicker = new MapPicker({
 			socket: this.socket,
@@ -59,12 +66,6 @@ const ClientApp = {
 	setupSocket() {
 		this.socket.on('connect', () => {
 			this.state.myId = this.socket.id;
-			// auto-join with stored name if present
-			const saved = localStorage.getItem('ttr_name');
-			if (saved && saved.trim()) {
-				this.el.nameInput.value = saved;
-				this.socket.emit('join', saved);
-			}
 		});
 
 		this.socket.on('state', (s) => this.handleStateUpdate(s));
@@ -227,7 +228,6 @@ const ClientApp = {
 
 		this.updateRoundDisplay(s.round, s.maxRounds);
 		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
-		this.saveName();
 
 		// Update phase-specific UI
 		if (s.phase === 'lobby') {
@@ -270,11 +270,6 @@ const ClientApp = {
 				this.el.scoreBoard.appendChild(li);
 			}
 		}, timeout);
-	},
-
-	saveName() {
-		const typed = this.el.nameInput.value.trim();
-		if (typed) localStorage.setItem('ttr_name', typed);
 	},
 
 	setLobbyState(players) {
@@ -333,15 +328,6 @@ const ClientApp = {
 	},
 
 	addEventListeners() {
-		this.el.joinBtn.addEventListener('click', () => {
-			this.socket.emit('join', this.el.nameInput.value);
-			this.el.nameInput.blur();
-		});
-
-		this.el.nameInput.addEventListener('keydown', (e) => {
-			if (e.key === 'Enter') this.el.joinBtn.click();
-		});
-
 		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
 		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
 
