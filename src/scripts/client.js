@@ -280,12 +280,6 @@ const ClientApp = {
 	addEventListeners() {
 		this.el.startBtn.addEventListener('click', () => this.socket.emit('start'));
 		this.el.resetBtn.addEventListener('click', () => this.socket.emit('reset'));
-
-		window.addEventListener('resize', () => {
-			if (!this.state.currentTreasureId) return;
-			// We need the last known treasure from state; easiest: request state by reconnect.
-			// But we can simply do nothing; next round will re-place.
-		});
 	},
 
 };
