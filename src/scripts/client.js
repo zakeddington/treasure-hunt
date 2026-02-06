@@ -1,14 +1,15 @@
 
 import { PlayerNameManager } from './PlayerNameManager.js';
+import { Scoreboard } from './Scoreboard.js';
 import { MapPicker } from './MapPicker.js';
+import { escapeHtml } from './utils.js';
 
 const ClientApp = {
 	socket: io(),
 
 	init() {
 		this.initElements();
-		this.initPlayerNameManager();
-		this.initMapPicker();
+		this.initComponents();
 		this.addEventListeners();
 		this.setupSocket();
 	},
@@ -18,7 +19,7 @@ const ClientApp = {
 		this.config = {
 			animSpeedTreasure: 1000, // ms
 			animSpeedScore: 900, // ms
-		}
+		};
 
 		this.classes = {
 			hidden: 'hidden',
@@ -26,11 +27,11 @@ const ClientApp = {
 			treasure: 'treasure',
 			scoreboardItem: 'scoreboard--item',
 			currentPlayer: 'current-player',
-		}
+		};
 
 		this.selectors = {
 			curPlayerScore: '.scoreboard--item.current-player .scoreboard--item-score',
-		}
+		};
 
 		this.el = {
 			startBtn: document.getElementById('startBtn'),
@@ -41,24 +42,35 @@ const ClientApp = {
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
 			timer: document.querySelector('.game-board--round-timer'),
-		}
+		};
 
 		this.state = {
 			myId: null,
 			currentTreasureId: null,
 			bannerTimeoutId: null,
 			timerIntervalId: null,
-		}
+		};
+
+		this.components = {
+			playerNameManager: null,
+			scoreboard: null,
+			mapPicker: null,
+		};
 	},
 
-	initPlayerNameManager() {
-		this.playerNameManager = new PlayerNameManager({
+	initComponents() {
+		this.components.playerNameManager = new PlayerNameManager({
 			socket: this.socket,
 		});
-	},
 
-	initMapPicker() {
-		this.mapPicker = new MapPicker({
+		this.components.scoreboard = new Scoreboard({
+			el: this.el.scoreBoard,
+			classes: this.classes,
+			config: this.config,
+			playerNameManager: this.components.playerNameManager,
+		});
+
+		this.components.mapPicker = new MapPicker({
 			socket: this.socket,
 		});
 	},
@@ -223,11 +235,11 @@ const ClientApp = {
 
 	handleStateUpdate(s) {
 		// Handle map picker and map updates
-		this.mapPicker.setMap(s.selectedMap);
-		this.mapPicker.handleStateUpdate(s.maps, s.selectedMap);
+		this.components.mapPicker.setMap(s.selectedMap);
+		this.components.mapPicker.handleStateUpdate(s.maps, s.selectedMap);
 
 		this.updateRoundDisplay(s.round, s.maxRounds);
-		this.updateScoreboard(s.players, s.winnerSocketId, s.phase);
+		this.components.scoreboard.render(s.players, s.winnerSocketId, s.phase, this.state.myId);
 
 		// Update phase-specific UI
 		if (s.phase === 'lobby') {
@@ -246,45 +258,18 @@ const ClientApp = {
 		this.el.maxRoundsText.textContent = String(maxRounds);
 	},
 
-	updateScoreboard(players, winnerSocketId, phase) {
-		let timeout = 0;
-
-		// prevent anim from being overridden by other state updates
-		if (phase === 'roundOver') {
-			timeout = this.config.animSpeedTreasure;
-		} else if (phase === 'ended') {
-			timeout = this.config.animSpeedTreasure + this.config.animSpeedScore;
-		}
-
-		setTimeout(() => {
-			this.el.scoreBoard.innerHTML = '';
-			for (const p of [...players]) {
-				const li = document.createElement('li');
-				li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
-				li.innerHTML = `<span class="scoreboard--item-name">${this.escapeHtml(p.name)}</span><span class="scoreboard--item-score">💎 ${p.score}</span>`;
-				if (winnerSocketId && p.id === winnerSocketId) {
-					li.classList.add('anim-score');
-					// remove class after animation completes
-					setTimeout(() => li.classList.remove('anim-score'), this.config.animSpeedScore);
-				}
-				this.el.scoreBoard.appendChild(li);
-			}
-			// Enable click-to-edit on current player's name
-			this.playerNameManager.enableScoreboardEditing(this.el.scoreBoard, this.state.myId);
-		}, timeout);
-	},
 
 	setLobbyState(players) {
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
-		this.mapPicker.showMapPickerButton();
+		this.components.mapPicker.showMapPickerButton();
 		const hint = players.length > 0 ? 'Press Start to begin!' : 'Join the game to start!';
 		this.setBanner(hint, true, true);
 	},
 
 	setPlayingState(treasure, roundEndsAt) {
-		this.mapPicker.hideMapPickerButton();
+		this.components.mapPicker.hideMapPickerButton();
 		this.showResetButton();
 		this.hideStartButton();
 		this.setBanner('Find the treasure NOW!', true);
@@ -293,7 +278,7 @@ const ClientApp = {
 	},
 
 	setRoundOverState(players, winnerSocketId) {
-		this.mapPicker.hideMapPickerButton();
+		this.components.mapPicker.hideMapPickerButton();
 		this.clearTreasure();
 		const isSinglePlayer = players.length === 1;
 		if (winnerSocketId) {
@@ -309,11 +294,11 @@ const ClientApp = {
 	},
 
 	setEndedState(players) {
-		this.mapPicker.hideMapPickerButton();
+		this.components.mapPicker.hideMapPickerButton();
 		this.clearTreasure();
 		this.hideResetButton();
 		this.showStartButton();
-		this.mapPicker.showMapPickerButton();
+		this.components.mapPicker.showMapPickerButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;
@@ -325,7 +310,7 @@ const ClientApp = {
 			this.setBanner(`<span class="text-size-large">Game Over</span><br />🤝 It's a Tie!`, true, true);
 		} else {
 			const medal = winner.id === this.state.myId ? '👑' : '🏆';
-			this.setBanner(`<span class="text-size-large">Game Over<br />${medal}</span><br />${this.escapeHtml(winner.name)} wins!`, true, true);
+			this.setBanner(`<span class="text-size-large">Game Over<br />${medal}</span><br />${escapeHtml(winner.name)} wins!`, true, true);
 		}
 	},
 
@@ -340,14 +325,6 @@ const ClientApp = {
 		});
 	},
 
-	escapeHtml(str) {
-		return String(str)
-			.replaceAll('&', '&amp;')
-			.replaceAll('<', '&lt;')
-			.replaceAll('>', '&gt;')
-			.replaceAll(`'`, '&quot;')
-			.replaceAll(`'`, '&#039;');
-	}
 };
 
 ClientApp.init();
