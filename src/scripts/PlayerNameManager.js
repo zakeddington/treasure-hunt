@@ -49,29 +49,37 @@ export class PlayerNameManager {
 		input.focus();
 		input.select();
 
-		const finishEdit = () => {
-			const newName = input.value.trim() || this.defaultName;
-			this.currentName = newName;
-			localStorage.setItem(this.localStorageKey, newName);
-
+		let done = false;
+		const finalize = (newValue, shouldSave) => {
+			if (done) return;
+			done = true;
+			input.removeEventListener('blur', onBlur);
 			const newSpan = document.createElement('span');
-			newSpan.textContent = newName;
+			newSpan.textContent = newValue;
 			newSpan.className = 'scoreboard--item-name';
+			newSpan.addEventListener('click', () => this.startEditMode(newSpan));
 			input.replaceWith(newSpan);
-
 			this.editingElement = null;
-			this.joinGame(); // Update server with new name
+			if (shouldSave) {
+				this.currentName = newValue;
+				localStorage.setItem(this.localStorageKey, newValue);
+				this.joinGame(); // Update server with new name
+			}
 		};
 
-		input.addEventListener('blur', finishEdit);
+		const onBlur = () => {
+			const newName = input.value.trim() || this.defaultName;
+			finalize(newName, true);
+		};
+
+		input.addEventListener('blur', onBlur);
 		input.addEventListener('keydown', (e) => {
-			if (e.key === 'Enter') finishEdit();
+			if (e.key === 'Enter') {
+				const newName = input.value.trim() || this.defaultName;
+				finalize(newName, true);
+			}
 			if (e.key === 'Escape') {
-				const newSpan = document.createElement('span');
-				newSpan.textContent = currentText;
-				newSpan.className = 'scoreboard--item-name';
-				input.replaceWith(newSpan);
-				this.editingElement = null;
+				finalize(currentText, false);
 			}
 		});
 	}
