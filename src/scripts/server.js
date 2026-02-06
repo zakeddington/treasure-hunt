@@ -61,7 +61,7 @@ function broadcastState() {
 		winnerSocketId: state.winnerSocketId,
 		roundEndsAt: state.roundEndsAt,
 		selectedMap: state.selectedMap,
-		maps: maps.map(m => ({ full: m.full, thumb: m.thumb }))
+		maps: maps.map(m => ({ full: m.full, thumb: m.thumb })),
 	});
 }
 
@@ -139,8 +139,6 @@ io.on('connection', (socket) => {
 
 	socket.on('start', () => {
 		resetScores();
-		// New game: pick a new random map and start first round
-		state.selectedMap = pickRandomMap();
 		state.round = 1;
 		spawnTreasure();
 	});
