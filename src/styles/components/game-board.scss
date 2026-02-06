@@ -118,16 +118,22 @@
 	border: 2px solid var(--color-bg-secondary);
 	border-radius: var(--radius-full);
 	display: flex;
-	font-size: var(--font-size-text-xlarge);
-	height: calc(var(--font-size-text-xlarge) * 2);
+	font-size: var(--font-size-text-large);
+	height: var(--font-size-text-xlarge);
 	justify-content: center;
 	position: absolute;
-	transform: translate(-50%, -50%);
-	width: calc(var(--font-size-text-xlarge) * 2);
+	transform: translate(0, 0);
+	transition: background var(--anim-speed) var(--anim-ease);
+	width: var(--font-size-text-xlarge);
 	z-index: var(--z-index-default);
 
 	&:active {
-		transform: translate(-50%, -50%) scale(0.98);
+		transform: translate(0, 0) scale(0.98);
+	}
+
+	&:hover,
+	&:focus {
+		background: var(--color-bg-opacity-highlight);
 	}
 }
 

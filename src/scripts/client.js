@@ -212,7 +212,7 @@ const ClientApp = {
 		const destY = (targetRect.top + targetRect.height / 2) - (sourceRect.top + sourceRect.height / 2);
 
 		clone.style.transition = `transform ${this.config.animSpeedTreasure}ms cubic-bezier(0.2,0.8,0.2,1), opacity ${this.config.animSpeedTreasure}ms linear`;
-		clone.style.transform = `translate(${destX}px, ${destY}px) scale(0.3)`;
+		clone.style.transform = `translate(${destX}px, ${destY}px) scale(0.7)`;
 		clone.style.opacity = '0.95';
 
 		setTimeout(() => { clone.style.opacity = '0'; }, 600);
