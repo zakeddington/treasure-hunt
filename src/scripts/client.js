@@ -18,15 +18,12 @@ const ClientApp = {
 
 		this.config = {
 			animSpeedTreasure: 1000, // ms
-			animSpeedScore: 900, // ms
 		};
 
 		this.classes = {
 			hidden: 'hidden',
 			fadingOut: 'fading-out',
 			treasure: 'treasure',
-			scoreboardItem: 'scoreboard--item',
-			currentPlayer: 'current-player',
 		};
 
 		this.selectors = {
@@ -63,10 +60,8 @@ const ClientApp = {
 			socket: this.socket,
 		});
 
-		this.components.scoreboard = new Scoreboard({
-			el: this.el.scoreBoard,
-			classes: this.classes,
-			config: this.config,
+		this.components.scoreboard = new Scoreboard(this.el.scoreBoard, {
+			animSpeedTreasure: this.config.animSpeedTreasure,
 			playerNameManager: this.components.playerNameManager,
 		});
 
