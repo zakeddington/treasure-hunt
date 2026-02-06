@@ -1,8 +1,8 @@
 
-import { PlayerNameManager } from './PlayerNameManager.js';
-import { Scoreboard } from './Scoreboard.js';
-import { MapPicker } from './MapPicker.js';
-import { Banner } from './Banner.js';
+import { PlayerNameManager } from './components/PlayerNameManager.js';
+import { Scoreboard } from './components/Scoreboard.js';
+import { MapPicker } from './components/MapPicker.js';
+import { Banner } from './components/Banner.js';
 
 const ClientApp = {
 	socket: io(),
