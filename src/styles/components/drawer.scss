@@ -18,7 +18,7 @@
 	}
 }
 
-.map-drawer {
+.drawer {
 	align-items: stretch;
 	display: flex;
 	height: 100%;
@@ -70,6 +70,28 @@
 		display: flex;
 		gap: var(--spacing-md);
 		justify-content: space-between;
+	}
+
+	&--content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-sm);
+		max-height: 100vh;
+		overflow-y: auto;
+
+		&-section {
+			display: flex;
+			flex-direction: column;
+			gap: var(--spacing-sm);
+		}
+	}
+
+	&--row {
+		align-items: center;
+		border-bottom: 2px solid var(--color-shape-border);
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: var(--spacing-xs);
 	}
 
 	&--close-btn {

@@ -1,4 +1,4 @@
-export class MapPicker {
+export class SettingsDrawer {
 	constructor(config) {
 		this.socket = config.socket;
 
@@ -16,10 +16,11 @@ export class MapPicker {
 		this.el = {
 			map: document.getElementById('gameMap'),
 			mapPicker: document.getElementById('mapPicker'),
-			mapPickerBtn: document.getElementById('mapPickerBtn'),
-			mapDrawer: document.getElementById('mapDrawer'),
-			mapDrawerCloseBtn: document.getElementById('mapDrawerCloseBtn'),
-			mapDrawerOverlay: document.querySelector('.map-drawer--overlay'),
+			settingsBtn: document.getElementById('settingsBtn'),
+			settingsDrawer: document.getElementById('settingsDrawer'),
+			settingsDrawerCloseBtn: document.getElementById('settingsDrawerCloseBtn'),
+			settingsDrawerOverlay: document.querySelector('.drawer--overlay'),
+			roundsInput: document.getElementById('roundsInput'),
 			mapPickerItems: null,
 		};
 
@@ -78,15 +79,15 @@ export class MapPicker {
 		}
 	}
 
-	showMapPickerButton() {
-		this.el.mapPickerBtn.classList.remove(this.classes.hidden);
+	showSettingsButton() {
+		this.el.settingsBtn.classList.remove(this.classes.hidden);
 	}
 
-	hideMapPickerButton() {
-		this.el.mapPickerBtn.classList.add(this.classes.hidden);
+	hideSettingsButton() {
+		this.el.settingsBtn.classList.add(this.classes.hidden);
 	}
 
-	handleStateUpdate(maps, selectedMap) {
+	handleStateUpdate(maps, selectedMap, maxRounds, phase) {
 		// Only render it once
 		if (Array.isArray(maps) && this.el.mapPicker && !this.state.rendered) {
 			this.render(maps, selectedMap);
@@ -96,6 +97,15 @@ export class MapPicker {
 		// Update selection
 		if (selectedMap && this.state.rendered) {
 			this.updateSelection(selectedMap);
+		}
+
+		if (typeof maxRounds === 'number' && this.el.roundsInput) {
+			this.el.roundsInput.value = String(maxRounds);
+		}
+
+		if (this.el.roundsInput) {
+			const disabled = phase && phase !== 'lobby' && phase !== 'ended';
+			this.el.roundsInput.disabled = Boolean(disabled);
 		}
 	}
 
@@ -139,26 +149,36 @@ export class MapPicker {
 	}
 
 	openDrawer() {
-		this.el.mapDrawer.classList.remove(this.classes.hidden);
-		setTimeout(() => this.el.mapDrawerCloseBtn.focus(), 100);
+		this.el.settingsDrawer.classList.remove(this.classes.hidden);
+		setTimeout(() => this.el.settingsDrawerCloseBtn.focus(), 100);
 	}
 
 	closeDrawer() {
-		this.el.mapDrawer.classList.add(this.classes.hidden);
-		this.el.mapPickerBtn.focus();
+		this.el.settingsDrawer.classList.add(this.classes.hidden);
+		this.el.settingsBtn.focus();
 	}
 
 	onKeydown(e) {
-		if (e.key === 'Escape' && !this.el.mapDrawer.classList.contains(this.classes.hidden)) {
+		if (e.key === 'Escape' && !this.el.settingsDrawer.classList.contains(this.classes.hidden)) {
 			this.closeDrawer();
 		}
 	}
 
 	addEventListeners() {
-		this.el.mapPickerBtn.addEventListener('click', () => this.openDrawer());
-		this.el.mapDrawerCloseBtn.addEventListener('click', () => this.closeDrawer());
-		this.el.mapDrawerOverlay.addEventListener('click', () => this.closeDrawer());
+		this.el.settingsBtn.addEventListener('click', () => this.openDrawer());
+		this.el.settingsDrawerCloseBtn.addEventListener('click', () => this.closeDrawer());
+		this.el.settingsDrawerOverlay.addEventListener('click', () => this.closeDrawer());
+		this.el.roundsInput?.addEventListener('change', () => this.onRoundsChange());
 
 		document.addEventListener('keydown', (e) => this.onKeydown(e));
+	}
+
+	onRoundsChange() {
+		if (!this.el.roundsInput) return;
+		const raw = parseInt(this.el.roundsInput.value, 10);
+		if (!Number.isFinite(raw)) return;
+		const clamped = Math.max(1, Math.min(20, raw));
+		this.el.roundsInput.value = String(clamped);
+		this.socket.emit('setMaxRounds', clamped);
 	}
 }

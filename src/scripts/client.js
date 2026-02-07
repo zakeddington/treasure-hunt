@@ -1,7 +1,7 @@
 
 import { PlayerNameManager } from './components/PlayerNameManager.js';
 import { Scoreboard } from './components/Scoreboard.js';
-import { MapPicker } from './components/MapPicker.js';
+import { SettingsDrawer } from './components/SettingsDrawer.js';
 import { Banner } from './components/Banner.js';
 import { Gameboard } from './components/Gameboard.js';
 import { StartResetControls } from './components/StartResetControls.js';
@@ -33,7 +33,7 @@ const ClientApp = {
 		this.components = {
 			playerNameManager: null,
 			scoreboard: null,
-			mapPicker: null,
+			settingsDrawer: null,
 			banner: null,
 			gameboard: null,
 			controls: null,
@@ -50,7 +50,7 @@ const ClientApp = {
 			playerNameManager: this.components.playerNameManager,
 		});
 
-		this.components.mapPicker = new MapPicker({
+		this.components.settingsDrawer = new SettingsDrawer({
 			socket: this.socket,
 		});
 
@@ -77,9 +77,8 @@ const ClientApp = {
 
 
 	handleStateUpdate(s) {
-		// Handle map picker and map updates
-		this.components.mapPicker.setMap(s.selectedMap);
-		this.components.mapPicker.handleStateUpdate(s.maps, s.selectedMap);
+		this.components.settingsDrawer.setMap(s.selectedMap);
+		this.components.settingsDrawer.handleStateUpdate(s.maps, s.selectedMap, s.maxRounds, s.phase);
 
 		this.components.gameboard.setRoundDisplay(s.round, s.maxRounds);
 		this.components.scoreboard.render(s.players, s.winnerSocketId, s.phase, this.state.myId);
@@ -99,12 +98,12 @@ const ClientApp = {
 	setLobbyState(players) {
 		this.components.gameboard.clearTreasure();
 		this.components.controls.showStart();
-		this.components.mapPicker.showMapPickerButton();
+		this.components.settingsDrawer.showSettingsButton();
 		this.components.banner.showLobby(players.length > 0);
 	},
 
 	setPlayingState(treasureObj, roundEndsAt) {
-		this.components.mapPicker.hideMapPickerButton();
+		this.components.settingsDrawer.hideSettingsButton();
 		this.components.controls.showReset();
 		this.components.banner.showPlaying();
 		this.components.gameboard.placeTreasure(treasureObj);
@@ -112,7 +111,7 @@ const ClientApp = {
 	},
 
 	setRoundOverState(players, winnerSocketId) {
-		this.components.mapPicker.hideMapPickerButton();
+		this.components.settingsDrawer.hideSettingsButton();
 		this.components.gameboard.clearTreasure();
 		this.components.controls.showReset();
 		const isSinglePlayer = players.length === 1;
@@ -125,10 +124,10 @@ const ClientApp = {
 	},
 
 	setEndedState(players) {
-		this.components.mapPicker.hideMapPickerButton();
+		this.components.settingsDrawer.hideSettingsButton();
 		this.components.gameboard.clearTreasure();
 		this.components.controls.showStart();
-		this.components.mapPicker.showMapPickerButton();
+		this.components.settingsDrawer.showSettingsButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;

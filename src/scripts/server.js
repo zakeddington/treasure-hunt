@@ -130,6 +130,15 @@ io.on('connection', (socket) => {
 		broadcastState();
 	});
 
+	socket.on('setMaxRounds', (value) => {
+		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
+		const parsed = Number.parseInt(value, 10);
+		if (!Number.isFinite(parsed)) return;
+		const clamped = Math.max(1, Math.min(20, parsed));
+		state.maxRounds = clamped;
+		broadcastState();
+	});
+
 	socket.on('join', (name) => {
 		const clean = String(name || '').trim().slice(0, 16) || 'Player';
 		const p = state.players.get(socket.id);

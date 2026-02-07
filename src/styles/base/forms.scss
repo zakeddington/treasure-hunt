@@ -7,16 +7,15 @@
 	display: inline-flex;
 	flex: 1;
 	font-family: var(--font-family);
-	font-size: var(--font-size-text-small);
+	font-size: var(--font-size-text-default);
 	font-weight: var(--font-weight-normal);
 	height: 100%;
 	line-height: var(--font-line-height-text-default);
-	min-width: 5em;
 	outline: none;
 	padding: var(--spacing-xs) var(--spacing-sm);
 
-	@media (min-width: variables.$breakpoint-desktop) {
-		font-size: var(--font-size-text-normal);
+	&[type='number'] {
+		flex: unset;
 	}
 
 	&::placeholder {

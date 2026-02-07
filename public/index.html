@@ -34,7 +34,7 @@
 		<div class="row">
 			<button id="resetBtn" class="btn btn-secondary hidden">Reset Game</button>
 			<button id="startBtn" class="btn btn-primary">Start Game</button>
-			<button id="mapPickerBtn" class="btn btn-secondary" aria-label="Open map picker">Select Map</button>
+			<button id="settingsBtn" class="btn btn-secondary" aria-label="Open settings">Settings</button>
 		</div>
 
 		<section class="game-row row">
@@ -53,15 +53,24 @@
 			</div>
 		</section>
 
-		<div id="mapDrawer" class="map-drawer hidden" role="dialog" aria-label="Map selector drawer">
-			<div class="map-drawer--overlay"></div>
-			<div class="map-drawer--panel">
-				<div class="map-drawer--header">
-					<h2>Select Map</h2>
-					<button id="mapDrawerCloseBtn" class="map-drawer--close-btn" aria-label="Close map picker">✕</button>
+		<div id="settingsDrawer" class="drawer hidden" role="dialog" aria-label="Settings drawer">
+			<div class="drawer--overlay"></div>
+			<div class="drawer--panel">
+				<div class="drawer--header">
+					<h2>Settings</h2>
+					<button id="settingsDrawerCloseBtn" class="drawer--close-btn" aria-label="Close Settings drawer">✕</button>
 				</div>
-				<div class="map-picker">
-						<div id="mapPicker" class="map-picker--content"></div>
+				<div class="drawer--content">
+					<div class="drawer--content-section">
+						<div class="drawer--row">
+							<label for="roundsInput">Rounds</label>
+							<input id="roundsInput" class="form-input" type="number" min="1" max="20" step="1" value="3" />
+						</div>
+					</div>
+					<div class="drawer--content-section">
+						<h3>Select Map</h3>
+						<div id="mapPicker" class="map-picker"></div>
+					</div>
 				</div>
 			</div>
 		</div>
