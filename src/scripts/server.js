@@ -27,7 +27,7 @@ const state = {
 	players: new Map(),
 	round: 0,
 	maxRounds: 10,
-	roundLength: 60000, // ms
+	roundLength: 30000, // ms
 	treasure: null,
 	winnerSocketId: null,
 	roundEndsAt: null,
@@ -144,7 +144,7 @@ io.on('connection', (socket) => {
 		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
 		const parsed = Number.parseInt(value, 10);
 		if (!Number.isFinite(parsed)) return;
-		const clamped = Math.max(5, Math.min(300, parsed));
+		const clamped = Math.max(5, Math.min(60, parsed));
 		state.roundLength = clamped * 1000;
 		broadcastState();
 	});
