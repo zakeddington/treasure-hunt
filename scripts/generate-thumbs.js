@@ -3,7 +3,7 @@ const path = require('path');
 const sharp = require('sharp');
 
 const SRC_DIR = path.resolve(__dirname, '../src/images');
-const OUT_DIR = path.resolve(__dirname, '../public/assets/images/thumbs');
+const OUT_DIR = path.resolve(__dirname, '../src/images/thumbs');
 const SIZE = 300;
 
 async function ensureDir(dir) {
