@@ -21,6 +21,7 @@ export class SettingsDrawer {
 			settingsDrawerCloseBtn: document.getElementById('settingsDrawerCloseBtn'),
 			settingsDrawerOverlay: document.querySelector('.drawer--overlay'),
 			roundsInput: document.getElementById('roundsInput'),
+			roundTimeInput: document.getElementById('roundTimeInput'),
 			mapPickerItems: null,
 		};
 
@@ -87,7 +88,7 @@ export class SettingsDrawer {
 		this.el.settingsBtn.classList.add(this.classes.hidden);
 	}
 
-	handleStateUpdate(maps, selectedMap, maxRounds, phase) {
+	handleStateUpdate(maps, selectedMap, maxRounds, roundLengthMs, phase) {
 		// Only render it once
 		if (Array.isArray(maps) && this.el.mapPicker && !this.state.rendered) {
 			this.render(maps, selectedMap);
@@ -103,9 +104,15 @@ export class SettingsDrawer {
 			this.el.roundsInput.value = String(maxRounds);
 		}
 
-		if (this.el.roundsInput) {
+		if (typeof roundLengthMs === 'number' && this.el.roundTimeInput) {
+			const seconds = Math.max(1, Math.round(roundLengthMs / 1000));
+			this.el.roundTimeInput.value = String(seconds);
+		}
+
+		if (this.el.roundsInput || this.el.roundTimeInput) {
 			const disabled = phase && phase !== 'lobby' && phase !== 'ended';
-			this.el.roundsInput.disabled = Boolean(disabled);
+			if (this.el.roundsInput) this.el.roundsInput.disabled = Boolean(disabled);
+			if (this.el.roundTimeInput) this.el.roundTimeInput.disabled = Boolean(disabled);
 		}
 	}
 
@@ -169,6 +176,7 @@ export class SettingsDrawer {
 		this.el.settingsDrawerCloseBtn.addEventListener('click', () => this.closeDrawer());
 		this.el.settingsDrawerOverlay.addEventListener('click', () => this.closeDrawer());
 		this.el.roundsInput?.addEventListener('change', () => this.onRoundsChange());
+		this.el.roundTimeInput?.addEventListener('change', () => this.onRoundTimeChange());
 
 		document.addEventListener('keydown', (e) => this.onKeydown(e));
 	}
@@ -180,5 +188,14 @@ export class SettingsDrawer {
 		const clamped = Math.max(1, Math.min(20, raw));
 		this.el.roundsInput.value = String(clamped);
 		this.socket.emit('setMaxRounds', clamped);
+	}
+
+	onRoundTimeChange() {
+		if (!this.el.roundTimeInput) return;
+		const raw = parseInt(this.el.roundTimeInput.value, 10);
+		if (!Number.isFinite(raw)) return;
+		const clamped = Math.max(5, Math.min(300, raw));
+		this.el.roundTimeInput.value = String(clamped);
+		this.socket.emit('setRoundLength', clamped);
 	}
 }

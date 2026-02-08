@@ -26,7 +26,7 @@ const state = {
 	phase: 'lobby',
 	players: new Map(),
 	round: 0,
-	maxRounds: 3,
+	maxRounds: 10,
 	roundLength: 60000, // ms
 	treasure: null,
 	winnerSocketId: null,
@@ -60,6 +60,7 @@ function broadcastState() {
 		} : null,
 		winnerSocketId: state.winnerSocketId,
 		roundEndsAt: state.roundEndsAt,
+		roundLength: state.roundLength,
 		selectedMap: state.selectedMap,
 		maps: maps.map(m => ({ full: m.full, thumb: m.thumb })),
 	});
@@ -136,6 +137,15 @@ io.on('connection', (socket) => {
 		if (!Number.isFinite(parsed)) return;
 		const clamped = Math.max(1, Math.min(20, parsed));
 		state.maxRounds = clamped;
+		broadcastState();
+	});
+
+	socket.on('setRoundLength', (value) => {
+		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
+		const parsed = Number.parseInt(value, 10);
+		if (!Number.isFinite(parsed)) return;
+		const clamped = Math.max(5, Math.min(300, parsed));
+		state.roundLength = clamped * 1000;
 		broadcastState();
 	});
 

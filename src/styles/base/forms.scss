@@ -12,10 +12,24 @@
 	height: 100%;
 	line-height: var(--font-line-height-text-default);
 	outline: none;
-	padding: var(--spacing-xs) var(--spacing-sm);
+	padding: var(--spacing-xs);
+	text-align: center;
 
 	&[type='number'] {
+		-moz-appearance: textfield;
+		appearance: textfield;
 		flex: unset;
+		width: 4rem;
+	}
+
+	&[type='number']::-webkit-outer-spin-button,
+	&[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	&::-moz-number-spin-box {
+		display: none;
 	}
 
 	&::placeholder {

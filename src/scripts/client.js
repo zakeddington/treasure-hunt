@@ -78,7 +78,7 @@ const ClientApp = {
 
 	handleStateUpdate(s) {
 		this.components.settingsDrawer.setMap(s.selectedMap);
-		this.components.settingsDrawer.handleStateUpdate(s.maps, s.selectedMap, s.maxRounds, s.phase);
+		this.components.settingsDrawer.handleStateUpdate(s.maps, s.selectedMap, s.maxRounds, s.roundLength, s.phase);
 
 		this.components.gameboard.setRoundDisplay(s.round, s.maxRounds);
 		this.components.scoreboard.render(s.players, s.winnerSocketId, s.phase, this.state.myId);
