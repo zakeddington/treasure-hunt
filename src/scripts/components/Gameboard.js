@@ -1,6 +1,7 @@
 export class Gameboard {
 	constructor(elGameboard, config) {
 		this.socket = config.socket;
+		this.settingsDrawer = config.settingsDrawer;
 
 		this.config = {
 			animSpeedTreasure: config.animSpeedTreasure,
@@ -105,7 +106,7 @@ export class Gameboard {
 	}
 
 	playBeep(isUrgent) {
-		if (!this.state.audioCtx) return;
+		if (this.settingsDrawer.isAudioMuted() || !this.state.audioCtx) return;
 		const ctx = this.state.audioCtx;
 		const osc = ctx.createOscillator();
 		const gain = ctx.createGain();
@@ -124,6 +125,7 @@ export class Gameboard {
 	}
 
 	playBuzzer() {
+		if (this.settingsDrawer.isAudioMuted()) return;
 		if (!this.state.buzzerAudio) {
 			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
 			this.state.buzzerAudio.preload = 'auto';
@@ -137,6 +139,7 @@ export class Gameboard {
 	}
 
 	playGameOver() {
+		if (this.settingsDrawer.isAudioMuted()) return;
 		if (!this.state.gameOverAudio) {
 			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
 			this.state.gameOverAudio.preload = 'auto';
@@ -150,6 +153,7 @@ export class Gameboard {
 	}
 
 	playTreasureFound() {
+		if (this.settingsDrawer.isAudioMuted()) return;
 		if (!this.state.treasureFoundAudio) {
 			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
 			this.state.treasureFoundAudio.preload = 'auto';

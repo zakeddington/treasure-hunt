@@ -61,6 +61,7 @@ const ClientApp = {
 			socket: this.socket,
 			animSpeedTreasure: this.config.animSpeedTreasure,
 			elScoreBoard: this.el.scoreBoard,
+			settingsDrawer: this.components.settingsDrawer,
 		});
 
 		this.components.controls = new StartResetControls({

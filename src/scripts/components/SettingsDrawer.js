@@ -24,6 +24,7 @@ export class SettingsDrawer {
 			settingsDrawer: document.getElementById('settingsDrawer'),
 			settingsDrawerCloseBtn: document.getElementById('settingsDrawerCloseBtn'),
 			settingsDrawerOverlay: document.querySelector('.drawer--overlay'),
+			muteAudioCheckbox: document.getElementById('muteAudioCheckbox'),
 			roundsInput: document.getElementById('roundsInput'),
 			roundTimeInput: document.getElementById('roundTimeInput'),
 			treasurePicker: document.getElementById('treasurePicker'),
@@ -34,6 +35,7 @@ export class SettingsDrawer {
 		this.state = {
 			mapRendered: false,
 			treasureRendered: false,
+			isMuted: localStorage.getItem('treasureHunt_audioMuted') === 'true',
 		};
 
 		this.init();
@@ -133,6 +135,10 @@ export class SettingsDrawer {
 		}
 	}
 
+	isAudioMuted() {
+		return this.state.isMuted;
+	}
+
 	// Local methods
 	// -----------------------------------------------------------------------
 	render(maps, selected) {
@@ -189,6 +195,13 @@ export class SettingsDrawer {
 	}
 
 	addEventListeners() {
+		if (this.el.muteAudioCheckbox) {
+			this.el.muteAudioCheckbox.checked = this.state.isMuted;
+			this.el.muteAudioCheckbox.addEventListener('change', () => {
+				this.state.isMuted = this.el.muteAudioCheckbox.checked;
+				localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
+			});
+		}
 		this.el.settingsBtn.addEventListener('click', () => this.openDrawer());
 		this.el.settingsDrawerCloseBtn.addEventListener('click', () => this.closeDrawer());
 		this.el.settingsDrawerOverlay.addEventListener('click', () => this.closeDrawer());
