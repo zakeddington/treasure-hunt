@@ -12,28 +12,21 @@ body {
 	display: flex;
 	justify-content: center;
 	padding: var(--spacing-md) var(--spacing-md) 0;
-
-	&--content {
-		align-items: center;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-sm);
-	}
-
-	&--icon {
-		max-width: 60px;
-		width: 60px;
-	}
+	width: 100%;
 
 	&--title {
 		align-items: center;
 		display: flex;
-		gap: var(--spacing-sm);
+		width: 100%;
 	}
 
-	&--tagline {
-		color: var(--color-text-secondary);
-		text-align: center;
+	&--logo {
+		max-width: 70vw;
+		width: 100%;
+
+		@media (min-width: variables.$breakpoint-desktop) {
+			max-width: 400px;
+		}
 	}
 }
 
