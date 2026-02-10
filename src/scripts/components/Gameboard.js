@@ -7,6 +7,7 @@ export class Gameboard {
 			elScoreBoard: config.elScoreBoard,
 			volume: 0.5,
 			audioBuzzerSrc: '/assets/audio/round-over.mp3',
+			audioGameOverSrc: '/assets/audio/game-over.mp3',
 		};
 
 		this.classes = {
@@ -34,12 +35,15 @@ export class Gameboard {
 			lastBeepRemaining: null,
 			buzzerPlayed: false,
 			buzzerAudio: null,
+			gameOverAudio: null,
+			isFinalRound: false,
 		};
 	}
 
 	setRoundDisplay(round, maxRounds) {
 		this.el.roundText.textContent = String(round);
 		this.el.maxRoundsText.textContent = String(maxRounds);
+		this.state.isFinalRound = round === maxRounds;
 	}
 
 	startTimer(roundEndsAt) {
@@ -68,7 +72,7 @@ export class Gameboard {
 			this.playBeep(remaining <= 3);
 		}
 
-		if (remaining === 0 && !this.state.buzzerPlayed) {
+		if (remaining === 0 && !this.state.buzzerPlayed && !this.state.isFinalRound) {
 			this.state.buzzerPlayed = true;
 			this.playBuzzer();
 		}
@@ -126,6 +130,19 @@ export class Gameboard {
 
 		this.state.buzzerAudio.currentTime = 0;
 		this.state.buzzerAudio.play().catch(() => {
+			// ignore autoplay restrictions
+		});
+	}
+
+	playGameOver() {
+		if (!this.state.gameOverAudio) {
+			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
+			this.state.gameOverAudio.preload = 'auto';
+			this.state.gameOverAudio.volume = this.config.volume;
+		}
+
+		this.state.gameOverAudio.currentTime = 0;
+		this.state.gameOverAudio.play().catch(() => {
 			// ignore autoplay restrictions
 		});
 	}

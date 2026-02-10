@@ -133,6 +133,7 @@ const ClientApp = {
 	setEndedState(players) {
 		this.components.settingsDrawer.hideSettingsButton();
 		this.components.gameboard.clearTreasure();
+		this.components.gameboard.playGameOver();
 		this.components.controls.showStart();
 		this.components.settingsDrawer.showSettingsButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
