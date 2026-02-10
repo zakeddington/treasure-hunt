@@ -28,6 +28,7 @@ const ClientApp = {
 
 		this.state = {
 			myId: null,
+			previousPhase: null,
 		};
 
 		this.components = {
@@ -77,6 +78,9 @@ const ClientApp = {
 
 
 	handleStateUpdate(s) {
+		const isPhaseTransition = s.phase !== this.state.previousPhase;
+		this.state.previousPhase = s.phase;
+
 		this.components.settingsDrawer.setMap(s.selectedMap);
 		this.components.settingsDrawer.handleStateUpdate(
 			s.maps,
@@ -98,7 +102,7 @@ const ClientApp = {
 		} else if (s.phase === 'roundOver') {
 			this.setRoundOverState(s.players, s.winnerSocketId);
 		} else if (s.phase === 'ended') {
-			this.setEndedState(s.players);
+			this.setEndedState(s.players, isPhaseTransition);
 		}
 	},
 
@@ -130,10 +134,12 @@ const ClientApp = {
 		});
 	},
 
-	setEndedState(players) {
+	setEndedState(players, isTransition) {
 		this.components.settingsDrawer.hideSettingsButton();
 		this.components.gameboard.clearTreasure();
-		this.components.gameboard.playGameOver();
+		if (isTransition) {
+			this.components.gameboard.playGameOver();
+		}
 		this.components.controls.showStart();
 		this.components.settingsDrawer.showSettingsButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
