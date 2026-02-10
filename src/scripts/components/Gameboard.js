@@ -5,6 +5,8 @@ export class Gameboard {
 		this.config = {
 			animSpeedTreasure: config.animSpeedTreasure,
 			elScoreBoard: config.elScoreBoard,
+			volume: 0.5,
+			audioBuzzerSrc: '/assets/audio/round-over.mp3',
 		};
 
 		this.classes = {
@@ -28,6 +30,10 @@ export class Gameboard {
 		this.state = {
 			currentTreasureId: null,
 			timerIntervalId: null,
+			audioCtx: null,
+			lastBeepRemaining: null,
+			buzzerPlayed: false,
+			buzzerAudio: null,
 		};
 	}
 
@@ -39,6 +45,9 @@ export class Gameboard {
 	startTimer(roundEndsAt) {
 		this.stopTimer();
 		this.el.timer.classList.remove(this.classes.hidden);
+		this.ensureAudioContext();
+		this.state.lastBeepRemaining = null;
+		this.state.buzzerPlayed = false;
 
 		// Update immediately on start
 		this.updateTimerDisplay(roundEndsAt);
@@ -53,6 +62,16 @@ export class Gameboard {
 		const now = Date.now();
 		const remaining = Math.max(0, Math.ceil((roundEndsAt - now) / 1000));
 		this.el.timer.textContent = String(remaining).padStart(2, '0');
+
+		if (remaining > 0 && remaining <= 10 && this.state.lastBeepRemaining !== remaining) {
+			this.state.lastBeepRemaining = remaining;
+			this.playBeep(remaining <= 3);
+		}
+
+		if (remaining === 0 && !this.state.buzzerPlayed) {
+			this.state.buzzerPlayed = true;
+			this.playBuzzer();
+		}
 	}
 
 	stopTimer() {
@@ -63,6 +82,52 @@ export class Gameboard {
 
 		this.el.timer.textContent = '';
 		this.el.timer.classList.add(this.classes.hidden);
+		this.state.lastBeepRemaining = null;
+		this.state.buzzerPlayed = false;
+	}
+
+	ensureAudioContext() {
+		if (!this.state.audioCtx) {
+			const AudioCtx = window.AudioContext || window.webkitAudioContext;
+			if (AudioCtx) this.state.audioCtx = new AudioCtx();
+		}
+		if (this.state.audioCtx && this.state.audioCtx.state === 'suspended') {
+			this.state.audioCtx.resume().catch(() => {
+				// ignore
+			});
+		}
+	}
+
+	playBeep(isUrgent) {
+		if (!this.state.audioCtx) return;
+		const ctx = this.state.audioCtx;
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		const now = ctx.currentTime;
+
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(isUrgent ? 880 : 660, now);
+		gain.gain.setValueAtTime(0.0001, now);
+		gain.gain.exponentialRampToValueAtTime(this.config.volume, now + 0.01);
+		gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.18);
+	}
+
+	playBuzzer() {
+		if (!this.state.buzzerAudio) {
+			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
+			this.state.buzzerAudio.preload = 'auto';
+			this.state.buzzerAudio.volume = this.config.volume;
+		}
+
+		this.state.buzzerAudio.currentTime = 0;
+		this.state.buzzerAudio.play().catch(() => {
+			// ignore autoplay restrictions
+		});
 	}
 
 	clearTreasure() {

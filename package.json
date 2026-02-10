@@ -5,12 +5,13 @@
   "main": "src/scripts/server.js",
   "scripts": {
     "start": "npm run build && node src/scripts/server.js",
-    "dev": "npx concurrently \"sass src/styles/style.scss public/assets/styles/style.css --watch\" \"nodemon --watch src/scripts -e js --exec \\\"npm run build:js\\\"\" \"nodemon --watch src/images --exec \\\"mkdir -p public/assets/images && cp -r src/images/* public/assets/images/\\\"\" \"nodemon src/scripts/server.js\"",
+    "dev": "npx concurrently \"sass src/styles/style.scss public/assets/styles/style.css --watch\" \"nodemon --watch src/scripts -e js --exec \\\"npm run build:js\\\"\" \"nodemon --watch src/images --exec \\\"mkdir -p public/assets/images && cp -r src/images/* public/assets/images/\\\"\" \"nodemon --watch src/audio --exec \\\"mkdir -p public/assets/audio && cp -r src/audio/* public/assets/audio/\\\"\" \"nodemon src/scripts/server.js\"",
     "build:css": "sass src/styles/style.scss public/assets/styles/style.css",
     "build:js": "mkdir -p public/assets/scripts && esbuild src/scripts/client.js --bundle --outfile=public/assets/scripts/client.js --format=iife",
     "build:images": "mkdir -p public/assets/images && cp -r src/images/* public/assets/images/",
+    "build:audio": "mkdir -p public/assets/audio && cp -r src/audio/* public/assets/audio/",
     "generate:thumbs": "node scripts/generate-thumbs.js",
-    "build": "npm run build:css && npm run build:js && npm run build:images"
+    "build": "npm run build:css && npm run build:js && npm run build:images && npm run build:audio"
   },
   "dependencies": {
     "express": "^4.19.2",
