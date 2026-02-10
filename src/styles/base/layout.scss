@@ -20,6 +20,11 @@ body {
 		gap: var(--spacing-sm);
 	}
 
+	&--icon {
+		max-width: 60px;
+		width: 60px;
+	}
+
 	&--title {
 		align-items: center;
 		display: flex;

@@ -1,6 +1,7 @@
 @use '../variables';
 
 .btn {
+	align-items: center;
 	background: var(--color-btn-primary-bg-default);
 	border-bottom-right-radius: var(--radius-xs);
 	border-top-left-radius: var(--radius-xs);
@@ -8,6 +9,7 @@
 	color: var(--color-btn-primary-text-default);
 	cursor: pointer;
 	display: inline-flex;
+	gap: var(--spacing-xs);
 	font-family: var(--font-family);
 	font-size: var(--font-size-text-default);
 	font-weight: var(--font-weight-normal);
@@ -37,6 +39,16 @@
 		&:focus-visible {
 			background: var(--color-btn-secondary-bg-hover);
 			color: var(--color-btn-secondary-text-hover);
+		}
+	}
+
+	&--icon {
+		margin: 0;
+		max-width: 1.5em;
+		width: 1.5em;
+
+		&.grayscale {
+			filter: grayscale(1);
 		}
 	}
 }

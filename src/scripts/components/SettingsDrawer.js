@@ -4,6 +4,20 @@ export class SettingsDrawer {
 
 		this.config = {
 			mapAnimSpeed: 300,
+			treasures: [
+				{ key: 'gem', label: 'Gem', icon: '/assets/images/icons/icon-gem.svg' },
+				{ key: 'coin', label: 'Coin', icon: '/assets/images/icons/icon-coin.svg' },
+				{ key: 'star', label: 'Star', icon: '/assets/images/icons/icon-star.svg' },
+				{ key: 'heart', label: 'Heart', icon: '/assets/images/icons/icon-heart.svg' },
+				{ key: 'crown', label: 'Crown', icon: '/assets/images/icons/icon-crown.svg' },
+				{ key: 'trophy', label: 'Trophy', icon: '/assets/images/icons/icon-trophy.svg' },
+				{ key: 'chest', label: 'Chest', icon: '/assets/images/icons/icon-chest.svg' },
+				{ key: 'coinBag', label: 'Coin Bag', icon: '/assets/images/icons/icon-coin-bag.svg' },
+				{ key: 'potionRed', label: 'Potion Red', icon: '/assets/images/icons/icon-potion-red.svg' },
+				{ key: 'potionBlue', label: 'Potion Blue', icon: '/assets/images/icons/icon-potion-blue.svg' },
+				{ key: 'potionGreen', label: 'Potion Green', icon: '/assets/images/icons/icon-potion-green.svg' },
+				{ key: 'boltBlue', label: 'Bolt Blue', icon: '/assets/images/icons/icon-bolt-blue.svg' },
+			],
 		};
 
 		this.classes = {
@@ -11,6 +25,8 @@ export class SettingsDrawer {
 			selected: 'selected',
 			elMapItem: 'map-picker--item',
 			elMapThumb: 'map-picker--thumb',
+			elTreasureItem: 'treasure-picker--item',
+			elTreasureIcon: 'treasure-picker--icon',
 		};
 
 		this.el = {
@@ -22,11 +38,14 @@ export class SettingsDrawer {
 			settingsDrawerOverlay: document.querySelector('.drawer--overlay'),
 			roundsInput: document.getElementById('roundsInput'),
 			roundTimeInput: document.getElementById('roundTimeInput'),
+			treasurePicker: document.getElementById('treasurePicker'),
 			mapPickerItems: null,
+			treasureItems: null,
 		};
 
 		this.state = {
-			rendered: false,
+			mapRendered: false,
+			treasureRendered: false,
 		};
 
 		this.init();
@@ -88,15 +107,15 @@ export class SettingsDrawer {
 		this.el.settingsBtn.classList.add(this.classes.hidden);
 	}
 
-	handleStateUpdate(maps, selectedMap, maxRounds, roundLengthMs, phase) {
+	handleStateUpdate(maps, selectedMap, maxRounds, roundLengthMs, treasureType, phase) {
 		// Only render it once
-		if (Array.isArray(maps) && this.el.mapPicker && !this.state.rendered) {
+		if (Array.isArray(maps) && this.el.mapPicker && !this.state.mapRendered) {
 			this.render(maps, selectedMap);
-			this.state.rendered = true;
+			this.state.mapRendered = true;
 		}
 
 		// Update selection
-		if (selectedMap && this.state.rendered) {
+		if (selectedMap && this.state.mapRendered) {
 			this.updateSelection(selectedMap);
 		}
 
@@ -109,10 +128,20 @@ export class SettingsDrawer {
 			this.el.roundTimeInput.value = String(seconds);
 		}
 
-		if (this.el.roundsInput || this.el.roundTimeInput) {
-			const disabled = phase && phase !== 'lobby' && phase !== 'ended';
+		if (!this.state.treasureRendered && this.el.treasurePicker) {
+			this.renderTreasurePicker();
+			this.state.treasureRendered = true;
+		}
+
+		const disabled = phase && phase !== 'lobby' && phase !== 'ended';
+		if (this.el.roundsInput || this.el.roundTimeInput || this.el.treasurePicker) {
 			if (this.el.roundsInput) this.el.roundsInput.disabled = Boolean(disabled);
 			if (this.el.roundTimeInput) this.el.roundTimeInput.disabled = Boolean(disabled);
+			if (this.el.treasurePicker) this.el.treasurePicker.classList.toggle('is-disabled', Boolean(disabled));
+		}
+
+		if (typeof treasureType === 'string') {
+			this.updateTreasureSelection(treasureType, Boolean(disabled));
 		}
 	}
 
@@ -197,5 +226,41 @@ export class SettingsDrawer {
 		const clamped = Math.max(5, Math.min(300, raw));
 		this.el.roundTimeInput.value = String(clamped);
 		this.socket.emit('setRoundLength', clamped);
+	}
+
+	renderTreasurePicker() {
+		if (!this.el.treasurePicker) return;
+		this.el.treasurePicker.innerHTML = '';
+		for (const treasure of this.config.treasures) {
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = this.classes.elTreasureItem;
+			btn.dataset.treasureKey = treasure.key;
+			btn.setAttribute('aria-label', `Select treasure ${treasure.label}`);
+
+			const img = document.createElement('img');
+			img.src = treasure.icon;
+			img.alt = treasure.label;
+			img.className = this.classes.elTreasureIcon;
+			img.loading = 'lazy';
+
+			btn.appendChild(img);
+			btn.addEventListener('click', () => this.onTreasureSelect(treasure.key));
+			this.el.treasurePicker.appendChild(btn);
+		}
+		this.el.treasureItems = this.el.treasurePicker.querySelectorAll('.' + this.classes.elTreasureItem);
+	}
+
+	onTreasureSelect(key) {
+		if (!key) return;
+		this.socket.emit('setTreasureType', key);
+	}
+
+	updateTreasureSelection(selectedKey, disabled) {
+		if (!this.el.treasureItems) return;
+		this.el.treasureItems.forEach((item) => {
+			item.classList.toggle(this.classes.selected, item.dataset.treasureKey === selectedKey);
+			item.disabled = Boolean(disabled);
+		});
 	}
 }

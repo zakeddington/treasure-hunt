@@ -75,23 +75,34 @@
 	&--content {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-sm);
+		gap: var(--spacing-md);
 		max-height: 100vh;
 		overflow-y: auto;
 
 		&-section {
+			border-top: 2px solid var(--color-shape-border);
 			display: flex;
 			flex-direction: column;
 			gap: var(--spacing-sm);
+			padding-top: var(--spacing-md);
 		}
 	}
 
 	&--row {
 		align-items: center;
-		border-bottom: 2px solid var(--color-shape-border);
 		display: flex;
-		justify-content: space-between;
-		padding-bottom: var(--spacing-xs);
+	}
+
+	&--icon {
+		background: var(--color-form-input-bg);
+		height: 100%;
+		max-width: var(--spacing-xl);
+		padding-left: var(--spacing-xs);
+		width: var(--spacing-xl);
+	}
+
+	&--label {
+		flex: 1;
 	}
 
 	&--close-btn {

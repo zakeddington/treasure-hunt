@@ -82,7 +82,16 @@ export class Gameboard {
 		treasureEl.className = this.classes.treasure;
 		treasureEl.type = 'button';
 		treasureEl.setAttribute('aria-label', 'Treasure');
-		treasureEl.textContent = '💎';
+		if (treasureObj.icon && treasureObj.icon.includes('/assets/')) {
+			const icon = document.createElement('img');
+			icon.src = treasureObj.icon;
+			icon.alt = 'Treasure';
+			icon.className = 'treasure-icon';
+			icon.loading = 'lazy';
+			treasureEl.appendChild(icon);
+		} else {
+			treasureEl.textContent = treasureObj.icon;
+		}
 
 		// Compute pixel position from normalized coords
 		const rect = this.el.gameBoard.getBoundingClientRect();

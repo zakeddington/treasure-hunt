@@ -22,6 +22,21 @@ const maps = mapNames.map(name => ({
 	thumb: `/assets/images/thumbs/${name}.jpg`,
 }));
 
+const treasureTypes = {
+	gem: '/assets/images/icons/icon-gem.svg',
+	coin: '/assets/images/icons/icon-coin.svg',
+	star: '/assets/images/icons/icon-star.svg',
+	heart: '/assets/images/icons/icon-heart.svg',
+	crown: '/assets/images/icons/icon-crown.svg',
+	trophy: '/assets/images/icons/icon-trophy.svg',
+	chest: '/assets/images/icons/icon-chest.svg',
+	coinBag: '/assets/images/icons/icon-coin-bag.svg',
+	potionRed: '/assets/images/icons/icon-potion-red.svg',
+	potionBlue: '/assets/images/icons/icon-potion-blue.svg',
+	potionGreen: '/assets/images/icons/icon-potion-green.svg',
+	boltBlue: '/assets/images/icons/icon-bolt-blue.svg',
+};
+
 const state = {
 	phase: 'lobby',
 	players: new Map(),
@@ -32,6 +47,7 @@ const state = {
 	winnerSocketId: null,
 	roundEndsAt: null,
 	selectedMap: null,
+	treasureType: 'gem',
 };
 
 function pickRandomMap() {
@@ -56,12 +72,14 @@ function broadcastState() {
 			id: state.treasure.id,
 			x: state.treasure.x,
 			y: state.treasure.y,
-			size: state.treasure.size
+			size: state.treasure.size,
+			icon: state.treasure.icon,
 		} : null,
 		winnerSocketId: state.winnerSocketId,
 		roundEndsAt: state.roundEndsAt,
 		roundLength: state.roundLength,
 		selectedMap: state.selectedMap,
+		treasureType: state.treasureType,
 		maps: maps.map(m => ({ full: m.full, thumb: m.thumb })),
 	});
 }
@@ -77,7 +95,8 @@ function spawnTreasure() {
 		x: rand(0.12, 0.88),
 		y: rand(0.18, 0.82),
 		size: rand(0.10, 0.14),
-		spawnedAt: Date.now()
+		spawnedAt: Date.now(),
+		icon: treasureTypes[state.treasureType] || treasureTypes['gem'],
 	};
 	state.winnerSocketId = null;
 	state.phase = 'playing';
@@ -146,6 +165,14 @@ io.on('connection', (socket) => {
 		if (!Number.isFinite(parsed)) return;
 		const clamped = Math.max(5, Math.min(60, parsed));
 		state.roundLength = clamped * 1000;
+		broadcastState();
+	});
+
+	socket.on('setTreasureType', (value) => {
+		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
+		const key = String(value || '').trim();
+		if (!treasureTypes[key]) return;
+		state.treasureType = key;
 		broadcastState();
 	});
 

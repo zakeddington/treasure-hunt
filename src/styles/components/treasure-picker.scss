@@ -1,0 +1,39 @@
+.treasure-picker {
+	display: grid;
+	gap: var(--spacing-xs);
+	grid-template-columns: repeat(4, 1fr);
+	width: 100%;
+
+	&.is-disabled {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+
+	&--item {
+		align-items: center;
+		aspect-ratio: 1/1;
+		background: var(--color-bg-opacity-light);
+		border: 2px solid transparent;
+		border-radius: var(--radius-full);
+		display: flex;
+		justify-content: center;
+		padding: 0;
+		transition: all var(--anim-speed) var(--anim-ease);
+		width: 100%;
+
+		&:hover,
+		&:focus {
+			border-color: var(--color-bg-secondary);
+			outline: none;
+		}
+
+		&.selected {
+			border-color: var(--color-btn-primary-bg-default);
+		}
+	}
+
+	&--icon {
+		height: 70%;
+		width: 70%;
+	}
+}

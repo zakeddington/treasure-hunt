@@ -56,6 +56,18 @@
 		// Score display
 		&-score	{
 			display: inline-flex;
+			justify-content: flex-end;
+
+			&-icon {
+				height: 100%;
+				max-width: 1em;
+				width: 1em;
+			}
+
+			&-pts {
+				min-width: 1.5em;
+				text-align: right;
+			}
 		}
 	}
 }

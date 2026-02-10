@@ -6,11 +6,15 @@ export class Banner {
 		this.config = {
 			showDuration: 3000,
 			animSpeedFadeOut: 300,
+			imgTie: 'assets/images/icons/icon-flag.svg',
+			imgWinner: 'assets/images/icons/icon-crown.svg',
+			imgNonWinner: 'assets/images/icons/icon-trophy.svg',
 		};
 
 		this.classes = {
 			hidden: 'hidden',
 			fadingOut: 'fading-out',
+			bannerContent: 'banner--content',
 		};
 
 		this.el = {
@@ -71,17 +75,24 @@ export class Banner {
 
 	showEnded({ isSinglePlayer, isTie, isWinner, winnerName, winnerScore }) {
 		if (isSinglePlayer) {
-			this.show(`<span class="text-size-large">Game Over</span><br />Final Score: ${winnerScore ?? 0}`, true, true);
+			this.show(`
+				<span class="text-size-large">Game Over</span>
+				<span>Final Score: ${winnerScore ?? 0}</span>
+			`, true, true);
 			return;
 		}
 
 		if (isTie) {
-			this.show('<span class="text-size-large">Game Over</span><br />🤝 It\'s a Tie!', true, true);
+			this.show(`
+				<span class="text-size-large">Game Over</span>
+				<img src="${this.config.imgTie}" alt="" />
+				<span>It's a Tie!</span>
+			`, true, true);
 			return;
 		}
 
-		const medal = isWinner ? '👑' : '🏆';
+		const medal = isWinner ? `<img src="${this.config.imgWinner}" alt="" />` : `<img src="${this.config.imgNonWinner}" alt="" />`;
 		const safeName = escapeHtml(winnerName ?? 'Unknown');
-		this.show(`<span class="text-size-large">Game Over<br />${medal}</span><br />${safeName} wins!`, true, true);
+		this.show(`<span class="text-size-large">Game Over</span>${medal}<span>${safeName} wins!</span>`, true, true);
 	}
 }
