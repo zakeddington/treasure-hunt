@@ -8,6 +8,7 @@ export class Gameboard {
 			volume: 0.5,
 			audioBuzzerSrc: '/assets/audio/round-over.mp3',
 			audioGameOverSrc: '/assets/audio/game-over.mp3',
+			audioTreasureFoundSrc: '/assets/audio/treasure-found.mp3',
 		};
 
 		this.classes = {
@@ -36,6 +37,7 @@ export class Gameboard {
 			buzzerPlayed: false,
 			buzzerAudio: null,
 			gameOverAudio: null,
+			treaureFoundAudio: null,
 			isFinalRound: false,
 		};
 	}
@@ -147,6 +149,19 @@ export class Gameboard {
 		});
 	}
 
+	playTreasureFound() {
+		if (!this.state.treasureFoundAudio) {
+			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
+			this.state.treasureFoundAudio.preload = 'auto';
+			this.state.treasureFoundAudio.volume = this.config.volume;
+		}
+
+		this.state.treasureFoundAudio.currentTime = 0;
+		this.state.treasureFoundAudio.play().catch(() => {
+			// ignore autoplay restrictions
+		});
+	}
+
 	clearTreasure() {
 		const t = this.el.gameBoard.querySelector('.' + this.classes.treasure);
 		if (t) t.remove();
@@ -192,6 +207,7 @@ export class Gameboard {
 			} catch (err) {
 				// ignore
 			}
+			this.playTreasureFound();
 			this.socket.emit('tapTreasure', { treasureId: this.state.currentTreasureId });
 		};
 
