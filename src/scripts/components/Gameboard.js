@@ -49,6 +49,24 @@ export class Gameboard {
 		this.state.isFinalRound = round === maxRounds;
 	}
 
+	initializeAudioContext() {
+		// Call this from a user interaction (click/touch) to enable autoplay on iOS
+		this.ensureAudioContext();
+		// Preload all audio elements by attempting to load them
+		if (!this.state.buzzerAudio) {
+			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
+			this.state.buzzerAudio.load();
+		}
+		if (!this.state.gameOverAudio) {
+			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
+			this.state.gameOverAudio.load();
+		}
+		if (!this.state.treasureFoundAudio) {
+			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
+			this.state.treasureFoundAudio.load();
+		}
+	}
+
 	startTimer(roundEndsAt) {
 		this.stopTimer();
 		this.el.timer.classList.remove(this.classes.hidden);
@@ -96,12 +114,20 @@ export class Gameboard {
 	ensureAudioContext() {
 		if (!this.state.audioCtx) {
 			const AudioCtx = window.AudioContext || window.webkitAudioContext;
-			if (AudioCtx) this.state.audioCtx = new AudioCtx();
+			if (AudioCtx) {
+				try {
+					this.state.audioCtx = new AudioCtx();
+				} catch (e) {
+					console.warn('Failed to create audio context:', e);
+				}
+			}
 		}
-		if (this.state.audioCtx && this.state.audioCtx.state === 'suspended') {
-			this.state.audioCtx.resume().catch(() => {
-				// ignore
-			});
+		if (this.state.audioCtx) {
+			if (this.state.audioCtx.state === 'suspended') {
+				this.state.audioCtx.resume().catch((e) => {
+					console.warn('Failed to resume audio context:', e);
+				});
+			}
 		}
 	}
 
@@ -130,11 +156,13 @@ export class Gameboard {
 			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
 			this.state.buzzerAudio.preload = 'auto';
 			this.state.buzzerAudio.volume = this.config.volume;
+			// iOS workaround: attempt load
+			this.state.buzzerAudio.load();
 		}
 
 		this.state.buzzerAudio.currentTime = 0;
-		this.state.buzzerAudio.play().catch(() => {
-			// ignore autoplay restrictions
+		this.state.buzzerAudio.play().catch((e) => {
+			console.warn('Buzzer playback failed:', e);
 		});
 	}
 
@@ -144,11 +172,13 @@ export class Gameboard {
 			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
 			this.state.gameOverAudio.preload = 'auto';
 			this.state.gameOverAudio.volume = this.config.volume;
+			// iOS workaround: attempt load
+			this.state.gameOverAudio.load();
 		}
 
 		this.state.gameOverAudio.currentTime = 0;
-		this.state.gameOverAudio.play().catch(() => {
-			// ignore autoplay restrictions
+		this.state.gameOverAudio.play().catch((e) => {
+			console.warn('Game over audio playback failed:', e);
 		});
 	}
 
@@ -158,11 +188,13 @@ export class Gameboard {
 			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
 			this.state.treasureFoundAudio.preload = 'auto';
 			this.state.treasureFoundAudio.volume = this.config.volume;
+			// iOS workaround: attempt load
+			this.state.treasureFoundAudio.load();
 		}
 
 		this.state.treasureFoundAudio.currentTime = 0;
-		this.state.treasureFoundAudio.play().catch(() => {
-			// ignore autoplay restrictions
+		this.state.treasureFoundAudio.play().catch((e) => {
+			console.warn('Treasure found audio playback failed:', e);
 		});
 	}
 
