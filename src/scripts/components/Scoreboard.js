@@ -1,3 +1,4 @@
+import { ICON_MAP } from '../config/appConfig.js';
 import { escapeHtml } from '../utils/utils.js';
 
 export class Scoreboard {
@@ -24,7 +25,7 @@ export class Scoreboard {
 		this.playerNameManager = config.playerNameManager;
 	}
 
-	render(players, winnerSocketId, phase, myId) {
+	render(players, winnerSocketId, phase, myId, treasureType) {
 		let timeout = 0;
 
 		// prevent anim from being overridden by other state updates
@@ -34,6 +35,8 @@ export class Scoreboard {
 			timeout = this.config.animSpeedTreasure + this.config.animSpeedScore;
 		}
 
+		const iconSrc = ICON_MAP.find((t) => t.key === treasureType)?.icon;
+
 		setTimeout(() => {
 			this.el.scoreboard.innerHTML = '';
 			for (const p of [...players]) {
@@ -42,7 +45,7 @@ export class Scoreboard {
 				li.innerHTML = `
 					<span class="${this.classes.scoreboardName}">${escapeHtml(p.name)}</span>
 					<span class="${this.classes.scoreboardScore}">
-						<img src="assets/images/icons/icon-gem.svg" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
+						<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
 						<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
 					</span>
 				`;

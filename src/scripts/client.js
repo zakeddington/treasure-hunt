@@ -88,7 +88,7 @@ const ClientApp = {
 		);
 
 		this.components.gameboard.setRoundDisplay(s.round, s.maxRounds);
-		this.components.scoreboard.render(s.players, s.winnerSocketId, s.phase, this.state.myId);
+		this.components.scoreboard.render(s.players, s.winnerSocketId, s.phase, this.state.myId, s.treasureType);
 
 		// Update phase-specific UI
 		if (s.phase === 'lobby') {
