@@ -8,7 +8,6 @@ export class Banner {
 			animSpeedFadeOut: 300,
 			imgTie: 'assets/images/icons/icon-flag.svg',
 			imgWinner: 'assets/images/icons/icon-crown.svg',
-			imgNonWinner: 'assets/images/icons/icon-trophy.svg',
 		};
 
 		this.classes = {
@@ -52,13 +51,13 @@ export class Banner {
 	}
 
 	showPlaying() {
-		this.show('Find the treasure NOW!', true, false);
+		this.show(`<span class="text-color-secondary">Find the treasure!</span>`, true, false);
 	}
 
 	showRoundOver({ isSinglePlayer, hasWinner, winnerName }) {
 		if (hasWinner) {
 			if (isSinglePlayer) {
-				this.show('Point earned! 🎉', true, false);
+				this.show('Point earned!', true, false);
 				return;
 			}
 			const safeName = winnerName ? escapeHtml(winnerName) : null;
@@ -76,7 +75,8 @@ export class Banner {
 	showEnded({ isSinglePlayer, isTie, isWinner, winnerName, winnerScore }) {
 		if (isSinglePlayer) {
 			this.show(`
-				<span class="text-size-large">Game Over</span>
+				<span class="text-size-large text-color-secondary">Game Over</span>
+				<img src="${this.config.imgWinner}" alt="" />
 				<span>Final Score: ${winnerScore ?? 0}</span>
 			`, true, true);
 			return;
@@ -84,15 +84,19 @@ export class Banner {
 
 		if (isTie) {
 			this.show(`
-				<span class="text-size-large">Game Over</span>
+				<span class="text-size-large text-color-secondary">Game Over</span>
 				<img src="${this.config.imgTie}" alt="" />
 				<span>It's a Tie!</span>
 			`, true, true);
 			return;
 		}
 
-		const medal = isWinner ? `<img src="${this.config.imgWinner}" alt="" />` : `<img src="${this.config.imgNonWinner}" alt="" />`;
-		const safeName = escapeHtml(winnerName ?? 'Unknown');
-		this.show(`<span class="text-size-large">Game Over</span>${medal}<span>${safeName} wins!</span>`, true, true);
+		const medal = isWinner ? `<img src="${this.config.imgWinner}" alt="" />` : ``;
+		const message = isWinner ? 'You win!' : `${escapeHtml(winnerName)} wins!`;
+		this.show(`
+			<span class="text-size-large text-color-secondary">Game Over</span>
+			${medal}
+			<span>${message}</span>
+		`, true, true);
 	}
 }

@@ -1,4 +1,4 @@
-
+@use '../variables';
 
 .banner {
 	background: var(--color-bg-opacity-dark);
@@ -12,7 +12,12 @@
 	text-align: center;
 	top: 50%;
 	transform: translate(-50%, -50%);
+	width: 70vw;
 	z-index: var(--z-index-above-default);
+
+	@media (min-width: variables.$breakpoint-desktop) {
+		width: auto;
+	}
 
 	img {
 		max-width: 120px;
