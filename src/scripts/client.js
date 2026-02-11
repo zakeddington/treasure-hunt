@@ -116,6 +116,7 @@ const ClientApp = {
 
 	setPlayingState(treasureObj, roundEndsAt) {
 		this.components.settingsDrawer.hideSettingsButton();
+		this.components.settingsDrawer.closeDrawer();
 		this.components.controls.showReset();
 		this.components.banner.showPlaying();
 		this.components.gameboard.initializeAudioContext();
