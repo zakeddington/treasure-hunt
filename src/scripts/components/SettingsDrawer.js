@@ -6,18 +6,18 @@ export class SettingsDrawer {
 
 		this.config = {
 			mapAnimSpeed: 300,
+			audioOnSrc: '/assets/images/icons/icon-audio-on.svg',
+			audioOffSrc: '/assets/images/icons/icon-audio-off.svg',
 		};
 
 		this.classes = {
 			hidden: 'hidden',
 			selected: 'selected',
+			disabled: 'is-disabled',
 			elMapItem: 'map-picker--item',
 			elMapThumb: 'map-picker--thumb',
 			elTreasureItem: 'treasure-picker--item',
 			elTreasureIcon: 'treasure-picker--icon',
-			elAudioToggleOption: 'btn-toggle--option',
-			elAudioToggleOn: 'btn-toggle--on',
-			elAudioToggleOff: 'btn-toggle--off',
 		};
 
 		this.el = {
@@ -130,7 +130,7 @@ export class SettingsDrawer {
 		if (this.el.roundsInput || this.el.roundTimeInput || this.el.treasurePicker) {
 			if (this.el.roundsInput) this.el.roundsInput.disabled = Boolean(disabled);
 			if (this.el.roundTimeInput) this.el.roundTimeInput.disabled = Boolean(disabled);
-			if (this.el.treasurePicker) this.el.treasurePicker.classList.toggle('is-disabled', Boolean(disabled));
+			if (this.el.treasurePicker) this.el.treasurePicker.classList.toggle(this.classes.disabled, Boolean(disabled));
 		}
 
 		if (typeof treasureType === 'string') {
@@ -200,15 +200,13 @@ export class SettingsDrawer {
 	addEventListeners() {
 		if (this.el.muteAudioToggle) {
 			this.updateToggleUI();
-			this.el.muteAudioToggle.addEventListener('click', (e) => {
-				if (e.target.classList.contains(this.classes.elAudioToggleOption)) {
-					this.state.isMuted = e.target.classList.contains(this.classes.elAudioToggleOff);
-					localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
-					this.updateToggleUI();
-				}
+			this.el.muteAudioToggle.addEventListener('click', () => {
+				this.state.isMuted = !this.state.isMuted;
+				localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
+				this.updateToggleUI();
 			});
 			this.el.muteAudioToggle.addEventListener('keydown', (e) => {
-				if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
 					this.state.isMuted = !this.state.isMuted;
 					localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
@@ -227,17 +225,21 @@ export class SettingsDrawer {
 
 	updateToggleUI() {
 		if (!this.el.muteAudioToggle) return;
-		const onBtn = this.el.muteAudioToggle.querySelector('.' + this.classes.elAudioToggleOn);
-		const offBtn = this.el.muteAudioToggle.querySelector('.' + this.classes.elAudioToggleOff);
+		const icon = this.el.muteAudioToggle.querySelector('img');
+		if (!icon) return;
 
 		if (this.state.isMuted) {
-			onBtn.classList.remove(this.classes.selected);
-			offBtn.classList.add(this.classes.selected);
-			this.el.muteAudioToggle.setAttribute('aria-checked', 'true');
+			icon.src = this.config.audioOffSrc;
+			icon.alt = 'Audio off';
+			this.el.muteAudioToggle.setAttribute('aria-pressed', 'true');
+			this.el.muteAudioToggle.setAttribute('aria-label', 'Audio off');
+			this.el.muteAudioToggle.classList.add(this.classes.selected);
 		} else {
-			onBtn.classList.add(this.classes.selected);
-			offBtn.classList.remove(this.classes.selected);
-			this.el.muteAudioToggle.setAttribute('aria-checked', 'false');
+			icon.src = this.config.audioOnSrc;
+			icon.alt = 'Audio on';
+			this.el.muteAudioToggle.setAttribute('aria-pressed', 'false');
+			this.el.muteAudioToggle.setAttribute('aria-label', 'Audio on');
+			this.el.muteAudioToggle.classList.remove(this.classes.selected);
 		}
 	}
 

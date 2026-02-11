@@ -47,6 +47,9 @@
 		<section class="game-row row">
 			<div class="game-border"></div>
 			<div class="game-board">
+				<button id="muteAudioToggle" class="game-board--audio-toggle" aria-pressed="false" aria-label="Audio on">
+					<img src="/assets/images/icons/icon-audio-on.svg" alt="Audio on" />
+				</button>
 				<div class="game-board--round">
 					<div class="game-board--round-timer hidden"></div>
 				<div class="game-board--round-count">Round:&nbsp;<span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
@@ -69,13 +72,6 @@
 				</div>
 				<div class="drawer--content">
 					<div class="drawer--content-section">
-						<div class="drawer--row">
-							<span class="drawer--label form-label">Audio</span>
-							<div id="muteAudioToggle" class="btn-toggle" role="switch" aria-checked="false" tabindex="0">
-								<button class="btn-toggle--option btn-toggle--on" aria-pressed="false">ON</button>
-								<button class="btn-toggle--option btn-toggle--off" aria-pressed="true">OFF</button>
-							</div>
-						</div>
 						<div class="drawer--row">
 							<label for="roundsInput" class="drawer--label form-label">
 								Rounds<br />

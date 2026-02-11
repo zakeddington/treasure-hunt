@@ -6,7 +6,7 @@ export class Gameboard {
 		this.config = {
 			animSpeedTreasure: config.animSpeedTreasure,
 			elScoreBoard: config.elScoreBoard,
-			volume: 0.5,
+			volume: 0.4,
 			audioBuzzerSrc: '/assets/audio/round-over.mp3',
 			audioGameOverSrc: '/assets/audio/game-over.mp3',
 			audioTreasureFoundSrc: '/assets/audio/treasure-found.mp3',
