@@ -52,3 +52,30 @@
 		}
 	}
 }
+
+.btn-toggle {
+	display: inline-flex;
+	gap: 0;
+	border: none;
+	border-radius: 4px;
+	overflow: hidden;
+
+	&--option {
+		appearance: none;
+		background: var(--color-form-input-bg);
+		border: none;
+		color: var(--color-text-primary);
+		cursor: pointer;
+		flex: 1;
+		font-family: var(--font-family);
+		font-size: var(--font-size-text-small);
+		font-weight: var(--font-weight-normal);
+		padding: var(--spacing-xs) var(--spacing-sm);
+		transition: all var(--anim-speed) var(--anim-ease);
+
+		&.selected {
+			background: var(--color-btn-primary-bg-default);
+			color: var(--color-btn-primary-text-default);
+		}
+	}
+}
