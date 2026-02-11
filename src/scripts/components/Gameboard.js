@@ -78,8 +78,6 @@ export class Gameboard {
 			this.state.treasureFoundAudio.preload = 'auto';
 			this.state.treasureFoundAudio.volume = this.config.volume;
 			this.state.treasureFoundAudio.load();
-
-			console.log('this.config.volume', this.config.volume);
 		}
 	}
 
