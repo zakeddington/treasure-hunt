@@ -143,20 +143,25 @@ const ClientApp = {
 	setEndedState(players, isTransition) {
 		this.components.settingsDrawer.hideSettingsButton();
 		this.components.gameboard.clearTreasure();
-		if (isTransition) {
-			this.components.gameboard.playGameOver();
-		}
+
 		this.components.controls.showStart();
 		this.components.settingsDrawer.showSettingsButton();
 		const sorted = [...players].sort((a, b) => b.score - a.score);
 		const winner = sorted[0];
 		const isSinglePlayer = players.length === 1;
 		const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score;
+		const isWinner = winner?.id === this.state.myId;
+
+		if (isWinner || isSinglePlayer) {
+			if (isTransition) {
+				this.components.gameboard.playGameOver();
+			}
+		}
 
 		this.components.banner.showEnded({
 			isSinglePlayer,
 			isTie,
-			isWinner: winner?.id === this.state.myId,
+			isWinner: isWinner,
 			winnerName: winner?.name,
 			winnerScore: winner?.score,
 		});
