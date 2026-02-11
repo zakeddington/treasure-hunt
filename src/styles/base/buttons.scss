@@ -52,3 +52,12 @@
 		}
 	}
 }
+
+.btn-start {
+	.btn--icon {
+		background: var(--color-bg-primary);
+		border: 2px solid var(--color-palette-yellow-300);
+		border-radius: var(--radius-full);
+		padding: var(--spacing-xxs);
+	}
+}
