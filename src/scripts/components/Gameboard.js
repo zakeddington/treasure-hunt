@@ -32,7 +32,7 @@ export class Gameboard {
 
 		this.state = {
 			currentTreasureId: null,
-			timerIntervalId: null,
+			timerTimeoutId: null,
 			audioCtx: null,
 			lastBeepRemaining: null,
 			buzzerPlayed: false,
@@ -41,7 +41,10 @@ export class Gameboard {
 			treaureFoundAudio: null,
 			isFinalRound: false,
 			serverTimeOffset: 0,
+			roundEndsAt: null,
 		};
+
+		this.bindUserGestureForAudio();
 	}
 
 	setServerTimeOffset(offsetMs) {
@@ -78,14 +81,28 @@ export class Gameboard {
 		this.ensureAudioContext();
 		this.state.lastBeepRemaining = null;
 		this.state.buzzerPlayed = false;
+		this.state.roundEndsAt = roundEndsAt;
 
 		// Update immediately on start
 		this.updateTimerDisplay(roundEndsAt);
 
-		// Update every second
-		this.state.timerIntervalId = setInterval(() => {
-			this.updateTimerDisplay(roundEndsAt);
-		}, 1000);
+		// Schedule updates aligned to server time boundaries
+		this.scheduleNextTick();
+	}
+
+	scheduleNextTick() {
+		if (!this.state.roundEndsAt) return;
+		const now = Date.now() + this.state.serverTimeOffset;
+		const remainingMs = this.state.roundEndsAt - now;
+		if (remainingMs <= 0) return;
+
+		const remainder = remainingMs % 1000;
+		const nextIn = remainder === 0 ? 1000 : remainder;
+
+		this.state.timerTimeoutId = setTimeout(() => {
+			this.updateTimerDisplay(this.state.roundEndsAt);
+			this.scheduleNextTick();
+		}, nextIn);
 	}
 
 	updateTimerDisplay(roundEndsAt) {
@@ -105,15 +122,27 @@ export class Gameboard {
 	}
 
 	stopTimer() {
-		if (this.state.timerIntervalId) {
-			clearInterval(this.state.timerIntervalId);
-			this.state.timerIntervalId = null;
+		if (this.state.timerTimeoutId) {
+			clearTimeout(this.state.timerTimeoutId);
+			this.state.timerTimeoutId = null;
 		}
+		this.state.roundEndsAt = null;
 
 		this.el.timer.textContent = '';
 		this.el.timer.classList.add(this.classes.hidden);
 		this.state.lastBeepRemaining = null;
 		this.state.buzzerPlayed = false;
+	}
+
+	bindUserGestureForAudio() {
+		const unlock = () => {
+			this.initializeAudioContext();
+		};
+		document.addEventListener('pointerdown', unlock, { once: true, passive: true });
+		document.addEventListener('touchstart', unlock, { once: true, passive: true });
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' || e.key === ' ') unlock();
+		}, { once: true });
 	}
 
 	ensureAudioContext() {
