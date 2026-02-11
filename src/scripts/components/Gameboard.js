@@ -39,6 +39,19 @@ export class Gameboard {
 			serverTimeOffset: 0,
 			roundEndsAt: null,
 		};
+
+		this.enableAudio();
+	}
+
+	// Initialize audio from a user interaction (click/touch) to enable autoplay on iOS
+	enableAudio() {
+		const unlock = () => {
+			this.initializeAudioContext();
+		};
+		document.addEventListener('pointerdown', unlock, { once: true, passive: true });
+		document.addEventListener('touchstart', unlock, { once: true, passive: true });
+		document.addEventListener('keydown', unlock, { once: true, passive: true });
+		document.addEventListener('click', unlock, { once: true, passive: true });
 	}
 
 	setServerTimeOffset(offsetMs) {
@@ -52,23 +65,27 @@ export class Gameboard {
 	}
 
 	initializeAudioContext() {
-		// Call this from a user interaction (click/touch) to enable autoplay on iOS
 		this.ensureAudioContext();
 		// Preload all audio elements by attempting to load them
 		if (!this.state.gameOverAudio) {
 			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
+			this.state.gameOverAudio.preload = 'auto';
+			this.state.gameOverAudio.volume = this.config.volume;
 			this.state.gameOverAudio.load();
 		}
 		if (!this.state.treasureFoundAudio) {
 			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
+			this.state.treasureFoundAudio.preload = 'auto';
+			this.state.treasureFoundAudio.volume = this.config.volume;
 			this.state.treasureFoundAudio.load();
+
+			console.log('this.config.volume', this.config.volume);
 		}
 	}
 
 	startTimer(roundEndsAt) {
 		this.stopTimer();
 		this.el.timer.classList.remove(this.classes.hidden);
-		this.ensureAudioContext();
 		this.state.roundEndsAt = roundEndsAt;
 
 		// Update immediately on start
@@ -121,24 +138,10 @@ export class Gameboard {
 				}
 			}
 		}
-		if (this.state.audioCtx) {
-			if (this.state.audioCtx.state === 'suspended') {
-				this.state.audioCtx.resume().catch((e) => {
-					console.warn('Failed to resume audio context:', e);
-				});
-			}
-		}
 	}
 
 	playGameOver() {
 		if (this.settingsDrawer.isAudioMuted()) return;
-		if (!this.state.gameOverAudio) {
-			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
-			this.state.gameOverAudio.preload = 'auto';
-			this.state.gameOverAudio.volume = this.config.volume;
-			// iOS workaround: attempt load
-			this.state.gameOverAudio.load();
-		}
 
 		this.state.gameOverAudio.currentTime = 0;
 		this.state.gameOverAudio.play().catch((e) => {
@@ -148,13 +151,6 @@ export class Gameboard {
 
 	playTreasureFound() {
 		if (this.settingsDrawer.isAudioMuted()) return;
-		if (!this.state.treasureFoundAudio) {
-			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
-			this.state.treasureFoundAudio.preload = 'auto';
-			this.state.treasureFoundAudio.volume = this.config.volume;
-			// iOS workaround: attempt load
-			this.state.treasureFoundAudio.load();
-		}
 
 		this.state.treasureFoundAudio.currentTime = 0;
 		this.state.treasureFoundAudio.play().catch((e) => {

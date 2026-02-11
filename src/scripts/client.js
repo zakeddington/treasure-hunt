@@ -123,7 +123,6 @@ const ClientApp = {
 		this.components.settingsDrawer.closeDrawer();
 		this.components.controls.showReset();
 		this.components.banner.showPlaying();
-		this.components.gameboard.initializeAudioContext();
 		this.components.gameboard.placeTreasure(treasureObj);
 		this.components.gameboard.startTimer(roundEndsAt);
 	},
