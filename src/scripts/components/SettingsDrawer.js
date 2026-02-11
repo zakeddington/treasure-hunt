@@ -38,7 +38,7 @@ export class SettingsDrawer {
 		this.state = {
 			mapRendered: false,
 			treasureRendered: false,
-			isMuted: localStorage.getItem('treasureHunt_audioMuted') === 'true',
+			isMuted: localStorage.getItem('treasureHunt_audioMuted') !== 'false',
 		};
 
 		this.init();
