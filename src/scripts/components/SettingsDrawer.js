@@ -12,7 +12,7 @@ export class SettingsDrawer {
 
 		this.classes = {
 			hidden: 'hidden',
-			selected: 'selected',
+			selected: 'is-selected',
 			disabled: 'is-disabled',
 			elMapItem: 'map-picker--item',
 			elMapThumb: 'map-picker--thumb',
