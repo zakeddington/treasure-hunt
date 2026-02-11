@@ -42,6 +42,8 @@ export class Gameboard {
 			isFinalRound: false,
 			serverTimeOffset: 0,
 			roundEndsAt: null,
+			beepTimeoutIds: [],
+			buzzerTimeoutId: null,
 		};
 
 		this.bindUserGestureForAudio();
@@ -88,6 +90,42 @@ export class Gameboard {
 
 		// Schedule updates aligned to server time boundaries
 		this.scheduleNextTick();
+		// Schedule beeps/buzzer aligned to server time
+		this.scheduleAudioCues();
+	}
+
+	scheduleAudioCues() {
+		this.clearAudioCues();
+		if (!this.state.roundEndsAt) return;
+		const now = Date.now() + this.state.serverTimeOffset;
+
+		for (let remaining = 10; remaining >= 1; remaining -= 1) {
+			const targetTime = this.state.roundEndsAt - (remaining * 1000);
+			const delay = targetTime - now;
+			if (delay < 0) continue;
+			const id = setTimeout(() => {
+				this.playBeep(remaining <= 3);
+			}, delay);
+			this.state.beepTimeoutIds.push(id);
+		}
+
+		if (!this.state.isFinalRound) {
+			const buzzerDelay = this.state.roundEndsAt - now;
+			if (buzzerDelay >= 0) {
+				this.state.buzzerTimeoutId = setTimeout(() => {
+					this.playBuzzer();
+				}, buzzerDelay);
+			}
+		}
+	}
+
+	clearAudioCues() {
+		this.state.beepTimeoutIds.forEach((id) => clearTimeout(id));
+		this.state.beepTimeoutIds = [];
+		if (this.state.buzzerTimeoutId) {
+			clearTimeout(this.state.buzzerTimeoutId);
+			this.state.buzzerTimeoutId = null;
+		}
 	}
 
 	scheduleNextTick() {
@@ -109,16 +147,6 @@ export class Gameboard {
 		const now = Date.now() + this.state.serverTimeOffset;
 		const remaining = Math.max(0, Math.ceil((roundEndsAt - now) / 1000));
 		this.el.timer.textContent = String(remaining).padStart(2, '0');
-
-		if (remaining > 0 && remaining <= 10 && this.state.lastBeepRemaining !== remaining) {
-			this.state.lastBeepRemaining = remaining;
-			this.playBeep(remaining <= 3);
-		}
-
-		if (remaining === 0 && !this.state.buzzerPlayed && !this.state.isFinalRound) {
-			this.state.buzzerPlayed = true;
-			this.playBuzzer();
-		}
 	}
 
 	stopTimer() {
@@ -127,6 +155,7 @@ export class Gameboard {
 			this.state.timerTimeoutId = null;
 		}
 		this.state.roundEndsAt = null;
+		this.clearAudioCues();
 
 		this.el.timer.textContent = '';
 		this.el.timer.classList.add(this.classes.hidden);
