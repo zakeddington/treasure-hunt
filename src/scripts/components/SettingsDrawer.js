@@ -15,9 +15,9 @@ export class SettingsDrawer {
 			elMapThumb: 'map-picker--thumb',
 			elTreasureItem: 'treasure-picker--item',
 			elTreasureIcon: 'treasure-picker--icon',
-			elAudioToggleOption: 'audio-toggle--option',
-			elAudioToggleOn: 'audio-toggle--on',
-			elAudioToggleOff: 'audio-toggle--off',
+			elAudioToggleOption: 'btn-toggle--option',
+			elAudioToggleOn: 'btn-toggle--on',
+			elAudioToggleOff: 'btn-toggle--off',
 		};
 
 		this.el = {
