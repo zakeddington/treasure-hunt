@@ -7,7 +7,6 @@ export class Gameboard {
 			animSpeedTreasure: config.animSpeedTreasure,
 			elScoreBoard: config.elScoreBoard,
 			volume: 0.4,
-			audioBuzzerSrc: '/assets/audio/round-over.mp3',
 			audioGameOverSrc: '/assets/audio/game-over.mp3',
 			audioTreasureFoundSrc: '/assets/audio/treasure-found.mp3',
 		};
@@ -34,19 +33,12 @@ export class Gameboard {
 			currentTreasureId: null,
 			timerTimeoutId: null,
 			audioCtx: null,
-			lastBeepRemaining: null,
-			buzzerPlayed: false,
-			buzzerAudio: null,
 			gameOverAudio: null,
 			treaureFoundAudio: null,
 			isFinalRound: false,
 			serverTimeOffset: 0,
 			roundEndsAt: null,
-			beepTimeoutIds: [],
-			buzzerTimeoutId: null,
 		};
-
-		this.bindUserGestureForAudio();
 	}
 
 	setServerTimeOffset(offsetMs) {
@@ -63,10 +55,6 @@ export class Gameboard {
 		// Call this from a user interaction (click/touch) to enable autoplay on iOS
 		this.ensureAudioContext();
 		// Preload all audio elements by attempting to load them
-		if (!this.state.buzzerAudio) {
-			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
-			this.state.buzzerAudio.load();
-		}
 		if (!this.state.gameOverAudio) {
 			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
 			this.state.gameOverAudio.load();
@@ -81,8 +69,6 @@ export class Gameboard {
 		this.stopTimer();
 		this.el.timer.classList.remove(this.classes.hidden);
 		this.ensureAudioContext();
-		this.state.lastBeepRemaining = null;
-		this.state.buzzerPlayed = false;
 		this.state.roundEndsAt = roundEndsAt;
 
 		// Update immediately on start
@@ -90,42 +76,6 @@ export class Gameboard {
 
 		// Schedule updates aligned to server time boundaries
 		this.scheduleNextTick();
-		// Schedule beeps/buzzer aligned to server time
-		this.scheduleAudioCues();
-	}
-
-	scheduleAudioCues() {
-		this.clearAudioCues();
-		if (!this.state.roundEndsAt) return;
-		const now = Date.now() + this.state.serverTimeOffset;
-
-		for (let remaining = 10; remaining >= 1; remaining -= 1) {
-			const targetTime = this.state.roundEndsAt - (remaining * 1000);
-			const delay = targetTime - now;
-			if (delay < 0) continue;
-			const id = setTimeout(() => {
-				this.playBeep(remaining <= 3);
-			}, delay);
-			this.state.beepTimeoutIds.push(id);
-		}
-
-		if (!this.state.isFinalRound) {
-			const buzzerDelay = this.state.roundEndsAt - now;
-			if (buzzerDelay >= 0) {
-				this.state.buzzerTimeoutId = setTimeout(() => {
-					this.playBuzzer();
-				}, buzzerDelay);
-			}
-		}
-	}
-
-	clearAudioCues() {
-		this.state.beepTimeoutIds.forEach((id) => clearTimeout(id));
-		this.state.beepTimeoutIds = [];
-		if (this.state.buzzerTimeoutId) {
-			clearTimeout(this.state.buzzerTimeoutId);
-			this.state.buzzerTimeoutId = null;
-		}
 	}
 
 	scheduleNextTick() {
@@ -155,23 +105,9 @@ export class Gameboard {
 			this.state.timerTimeoutId = null;
 		}
 		this.state.roundEndsAt = null;
-		this.clearAudioCues();
 
 		this.el.timer.textContent = '';
 		this.el.timer.classList.add(this.classes.hidden);
-		this.state.lastBeepRemaining = null;
-		this.state.buzzerPlayed = false;
-	}
-
-	bindUserGestureForAudio() {
-		const unlock = () => {
-			this.initializeAudioContext();
-		};
-		document.addEventListener('pointerdown', unlock, { once: true, passive: true });
-		document.addEventListener('touchstart', unlock, { once: true, passive: true });
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Enter' || e.key === ' ') unlock();
-		}, { once: true });
 	}
 
 	ensureAudioContext() {
@@ -192,41 +128,6 @@ export class Gameboard {
 				});
 			}
 		}
-	}
-
-	playBeep(isUrgent) {
-		if (this.settingsDrawer.isAudioMuted() || !this.state.audioCtx) return;
-		const ctx = this.state.audioCtx;
-		const osc = ctx.createOscillator();
-		const gain = ctx.createGain();
-		const now = ctx.currentTime;
-
-		osc.type = 'sine';
-		osc.frequency.setValueAtTime(isUrgent ? 880 : 660, now);
-		gain.gain.setValueAtTime(0.0001, now);
-		gain.gain.exponentialRampToValueAtTime(this.config.volume, now + 0.01);
-		gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-
-		osc.connect(gain);
-		gain.connect(ctx.destination);
-		osc.start(now);
-		osc.stop(now + 0.18);
-	}
-
-	playBuzzer() {
-		if (this.settingsDrawer.isAudioMuted()) return;
-		if (!this.state.buzzerAudio) {
-			this.state.buzzerAudio = new Audio(this.config.audioBuzzerSrc);
-			this.state.buzzerAudio.preload = 'auto';
-			this.state.buzzerAudio.volume = this.config.volume;
-			// iOS workaround: attempt load
-			this.state.buzzerAudio.load();
-		}
-
-		this.state.buzzerAudio.currentTime = 0;
-		this.state.buzzerAudio.play().catch((e) => {
-			console.warn('Buzzer playback failed:', e);
-		});
 	}
 
 	playGameOver() {
