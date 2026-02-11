@@ -153,7 +153,7 @@ const ClientApp = {
 		const isWinner = winner?.id === this.state.myId;
 
 		if (isWinner || isSinglePlayer) {
-			if (isTransition) {
+			if (isTransition && !isTie) {
 				this.components.gameboard.playGameOver();
 			}
 		}
