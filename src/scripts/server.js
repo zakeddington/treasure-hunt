@@ -64,6 +64,7 @@ function playersList() {
 
 function broadcastState() {
 	io.emit('state', {
+		serverNow: Date.now(),
 		phase: state.phase,
 		round: state.round,
 		maxRounds: state.maxRounds,

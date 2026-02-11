@@ -40,7 +40,12 @@ export class Gameboard {
 			gameOverAudio: null,
 			treaureFoundAudio: null,
 			isFinalRound: false,
+			serverTimeOffset: 0,
 		};
+	}
+
+	setServerTimeOffset(offsetMs) {
+		this.state.serverTimeOffset = Number.isFinite(offsetMs) ? offsetMs : 0;
 	}
 
 	setRoundDisplay(round, maxRounds) {
@@ -84,7 +89,7 @@ export class Gameboard {
 	}
 
 	updateTimerDisplay(roundEndsAt) {
-		const now = Date.now();
+		const now = Date.now() + this.state.serverTimeOffset;
 		const remaining = Math.max(0, Math.ceil((roundEndsAt - now) / 1000));
 		this.el.timer.textContent = String(remaining).padStart(2, '0');
 

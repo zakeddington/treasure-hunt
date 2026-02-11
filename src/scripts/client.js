@@ -82,6 +82,10 @@ const ClientApp = {
 		const isPhaseTransition = s.phase !== this.state.previousPhase;
 		this.state.previousPhase = s.phase;
 
+		if (typeof s.serverNow === 'number') {
+			this.state.serverTimeOffset = s.serverNow - Date.now();
+			this.components.gameboard.setServerTimeOffset(this.state.serverTimeOffset);
+		}
 		this.components.settingsDrawer.setMap(s.selectedMap);
 		this.components.settingsDrawer.handleStateUpdate(
 			s.maps,
