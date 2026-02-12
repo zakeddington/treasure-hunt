@@ -9,12 +9,16 @@ export class Gameboard {
 			volume: 0.4,
 			audioGameOverSrc: '/assets/audio/game-over.mp3',
 			audioTreasureFoundSrc: '/assets/audio/treasure-found.mp3',
+			fullscreenEnterSrc: '/assets/images/icons/icon-fullscreen-enter.svg',
+			fullscreenExitSrc: '/assets/images/icons/icon-fullscreen-exit.svg',
 		};
 
 		this.classes = {
 			treasure: 'treasure',
 			treasureClone: 'treasure-clone',
 			hidden: 'hidden',
+			fullscreen: 'is-fullscreen',
+			noScroll: 'no-scroll',
 		};
 
 		this.selectors = {
@@ -23,10 +27,13 @@ export class Gameboard {
 
 		this.el = {
 			gameBoard: elGameboard,
+			gameBoardShell: elGameboard.closest('.game-board'),
 			scoreBoard: this.config.elScoreBoard,
 			timer: document.querySelector('.game-board--round-timer'),
 			roundText: document.getElementById('roundText'),
 			maxRoundsText: document.getElementById('maxRoundsText'),
+			fullscreenToggle: document.getElementById('fullscreenToggle'),
+			fullscreenToggleIcon: document.getElementById('fullscreenToggleIcon'),
 		};
 
 		this.state = {
@@ -38,9 +45,60 @@ export class Gameboard {
 			isFinalRound: false,
 			serverTimeOffset: 0,
 			roundEndsAt: null,
+			scrollY: 0,
 		};
 
 		this.enableAudio();
+		this.initFullscreenToggle();
+	}
+
+	initFullscreenToggle() {
+		if (!this.el.fullscreenToggle || !this.el.gameBoardShell) return;
+
+		this.el.fullscreenToggle.addEventListener('click', () => this.toggleFullscreen());
+		document.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape') return;
+			if (this.isFullscreen()) this.disableFullscreen();
+		});
+		this.updateFullscreenButton();
+	}
+
+	isFullscreen() {
+		return this.el.gameBoardShell.classList.contains(this.classes.fullscreen);
+	}
+
+	updateFullscreenButton() {
+		const isFullscreen = this.isFullscreen();
+		this.el.fullscreenToggle.setAttribute('aria-pressed', String(isFullscreen));
+		this.el.fullscreenToggle.setAttribute('aria-label', isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen');
+		this.el.fullscreenToggleIcon.src = isFullscreen ? this.config.fullscreenExitSrc : this.config.fullscreenEnterSrc;
+		this.el.fullscreenToggleIcon.alt = isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen';
+	}
+
+	toggleFullscreen() {
+		if (this.isFullscreen()) {
+			this.disableFullscreen();
+			return;
+		}
+		this.enableFullscreen();
+	}
+
+	enableFullscreen() {
+		this.state.scrollY = window.scrollY || window.pageYOffset || 0;
+		document.body.classList.add(this.classes.noScroll);
+		document.body.style.top = `-${this.state.scrollY}px`;
+		document.body.style.width = '100%';
+		this.el.gameBoardShell.classList.add(this.classes.fullscreen);
+		this.updateFullscreenButton();
+	}
+
+	disableFullscreen() {
+		this.el.gameBoardShell.classList.remove(this.classes.fullscreen);
+		document.body.classList.remove(this.classes.noScroll);
+		document.body.style.top = '';
+		document.body.style.width = '';
+		window.scrollTo(0, this.state.scrollY || 0);
+		this.updateFullscreenButton();
 	}
 
 	// Initialize audio from a user interaction (click/touch) to enable autoplay on iOS

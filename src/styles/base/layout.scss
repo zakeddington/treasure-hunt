@@ -7,6 +7,12 @@ body {
 	min-height: 100vh;
 }
 
+body.no-scroll {
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
+}
+
 .site-header {
 	align-items: center;
 	display: flex;
