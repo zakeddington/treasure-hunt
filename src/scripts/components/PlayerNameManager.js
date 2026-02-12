@@ -5,7 +5,7 @@ export class PlayerNameManager {
 		this.config = {
 			defaultName: 'Player Name',
 			localStorageKey: 'ttr_playerName',
-			nameMaxLength: 16,
+			nameMaxLength: 32,
 		};
 
 		this.classes = {

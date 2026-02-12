@@ -178,7 +178,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('join', (name) => {
-		const clean = String(name || '').trim().slice(0, 16) || 'Player';
+		const clean = String(name || '').trim().slice(0, 32) || 'Player';
 		const p = state.players.get(socket.id);
 		if (p) p.name = clean;
 		broadcastState();
