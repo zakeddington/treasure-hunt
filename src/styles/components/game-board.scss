@@ -91,9 +91,13 @@
 		}
 
 		&-fullscreen {
-			bottom: 15px;
+			left: 15px;
 			padding: 8px;
-			right: 15px;
+			top: 65px;
+
+			@media (min-width: variables.$breakpoint-desktop) {
+				top: 85px;
+			}
 		}
 	}
 
