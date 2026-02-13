@@ -14,4 +14,5 @@ export const ICON_MAP = [
 ];
 
 export const LOCAL_STORAGE_SAVED_NAME = 'treasureHunt_playerName';
+export const LOCAL_STORAGE_SAVED_SCORE = 'treasureHunt_playerScore';
 export const LOCAL_STORAGE_AUDIO_MUTED = 'treasureHunt_audioMuted';

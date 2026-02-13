@@ -177,10 +177,21 @@ io.on('connection', (socket) => {
 		broadcastState();
 	});
 
-	socket.on('join', (name) => {
+	socket.on('join', (data) => {
+		// Support both old format (string) and new format (object with name and score)
+		const isObject = typeof data === 'object' && data !== null;
+		const name = isObject ? data.name : data;
+		const score = isObject && typeof data.score === 'number' ? data.score : undefined;
+
 		const clean = String(name || '').trim().slice(0, 32) || 'Player';
 		const p = state.players.get(socket.id);
-		if (p) p.name = clean;
+		if (p) {
+			p.name = clean;
+			// Use provided score if valid, otherwise keep existing score
+			if (score !== undefined && score >= 0) {
+				p.score = score;
+			}
+		}
 		broadcastState();
 	});
 

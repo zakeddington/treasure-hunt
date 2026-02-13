@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_SAVED_NAME } from '../config/appConfig.js';
+import { LOCAL_STORAGE_SAVED_NAME, LOCAL_STORAGE_SAVED_SCORE } from '../config/appConfig.js';
 
 export class PlayerNameManager {
 	constructor(config) {
@@ -23,6 +23,7 @@ export class PlayerNameManager {
 
 		this.state = {
 			currentName: null,
+			currentScore: 0,
 		};
 
 		this.init();
@@ -31,11 +32,19 @@ export class PlayerNameManager {
 	init() {
 		const saved = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
 		this.state.currentName = saved && saved.trim() ? saved : this.config.defaultName;
+
+		const savedScore = localStorage.getItem(LOCAL_STORAGE_SAVED_SCORE);
+		this.state.currentScore = savedScore ? parseInt(savedScore, 10) : 0;
+		if (isNaN(this.state.currentScore)) this.state.currentScore = 0;
+
 		this.joinGame();
 	}
 
 	joinGame() {
-		this.socket.emit('join', this.state.currentName);
+		this.socket.emit('join', {
+			name: this.state.currentName,
+			score: this.state.currentScore
+		});
 	}
 
 	// Make scoreboard name editable when user clicks it
@@ -82,7 +91,10 @@ export class PlayerNameManager {
 			if (shouldSave) {
 				this.state.currentName = newValue;
 				localStorage.setItem(LOCAL_STORAGE_SAVED_NAME, newValue);
-				this.joinGame(); // Update server with new name
+				this.socket.emit('join', {
+					name: newValue,
+					score: this.state.currentScore
+				});
 			}
 		};
 
@@ -101,5 +113,10 @@ export class PlayerNameManager {
 				finalize(currentText, false);
 			}
 		});
+	}
+
+	saveScore(score) {
+		this.state.currentScore = score;
+		localStorage.setItem(LOCAL_STORAGE_SAVED_SCORE, String(score));
 	}
 }
