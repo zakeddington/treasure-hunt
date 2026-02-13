@@ -46,16 +46,19 @@
 
 		<section id="gameBoardFullScreen" class="game-row row">
 			<div class="game-board">
-				<button id="muteAudioToggle" class="game-board--btn game-board--btn-audio" aria-pressed="false" aria-label="Audio on">
-					<img src="/assets/images/icons/icon-audio-on.svg" alt="Audio on" />
-				</button>
+				<div class="game-board--btns">
+					<button id="fullscreenToggle" class="game-board--btn game-board--btn-fullscreen" aria-pressed="false" aria-label="Enter fullscreen">
+						<img id="fullscreenToggleIcon" src="/assets/images/icons/icon-fullscreen-enter.svg" alt="Enter fullscreen" />
+					</button>
+					<button id="muteAudioToggle" class="game-board--btn game-board--btn-audio" aria-pressed="false" aria-label="Audio on">
+						<img src="/assets/images/icons/icon-audio-on.svg" alt="Audio on" />
+					</button>
+				</div>
 				<div class="game-board--round">
 					<div class="game-board--round-timer hidden"></div>
 				<div class="game-board--round-count">Round:&nbsp;<span id="roundText">0</span>/<span id="maxRoundsText">10</span></div>
 				</div>
-				<button id="fullscreenToggle" class="game-board--btn game-board--btn-fullscreen" aria-pressed="false" aria-label="Enter fullscreen">
-					<img id="fullscreenToggleIcon" src="/assets/images/icons/icon-fullscreen-enter.svg" alt="Enter fullscreen" />
-				</button>
+
 				<div class="game-board--container">
 					<div id="gameBoard" class="game-board--content">
 						<img id="gameMap" class="game-board--map" src="" alt="map" />
