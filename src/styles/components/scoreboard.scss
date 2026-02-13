@@ -13,12 +13,17 @@
 	&--item {
 		background: var(--color-bg-opacity-med);
 		display: flex;
+		gap: var(--spacing-sm);
 		justify-content: space-between;
 		padding: var(--spacing-xs) var(--spacing-sm);
 		transition: all var(--anim-speed-slow) var(--anim-ease);
 
 		&:nth-child(odd) {
 			background: var(--color-bg-opacity-light);
+		}
+
+		&-name {
+			word-break: break-word;
 		}
 
 		&.current-player {
@@ -55,6 +60,7 @@
 
 		// Score display
 		&-score	{
+			align-items: center;
 			display: inline-flex;
 			justify-content: flex-end;
 
