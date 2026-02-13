@@ -1,4 +1,4 @@
-import { ICON_MAP } from '../config/appConfig';
+import { ICON_MAP, LOCAL_STORAGE_AUDIO_MUTED } from '../config/appConfig';
 
 export class SettingsDrawer {
 	constructor(config) {
@@ -38,7 +38,7 @@ export class SettingsDrawer {
 		this.state = {
 			mapRendered: false,
 			treasureRendered: false,
-			isMuted: localStorage.getItem('treasureHunt_audioMuted') === 'true',
+			isMuted: localStorage.getItem(LOCAL_STORAGE_AUDIO_MUTED) === 'true',
 		};
 
 		this.init();
@@ -202,14 +202,14 @@ export class SettingsDrawer {
 			this.updateToggleUI();
 			this.el.muteAudioToggle.addEventListener('click', () => {
 				this.state.isMuted = !this.state.isMuted;
-				localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
+				localStorage.setItem(LOCAL_STORAGE_AUDIO_MUTED, String(this.state.isMuted));
 				this.updateToggleUI();
 			});
 			this.el.muteAudioToggle.addEventListener('keydown', (e) => {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
 					this.state.isMuted = !this.state.isMuted;
-					localStorage.setItem('treasureHunt_audioMuted', String(this.state.isMuted));
+					localStorage.setItem(LOCAL_STORAGE_AUDIO_MUTED, String(this.state.isMuted));
 					this.updateToggleUI();
 				}
 			});

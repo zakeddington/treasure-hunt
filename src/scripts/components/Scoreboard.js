@@ -1,4 +1,4 @@
-import { ICON_MAP } from '../config/appConfig.js';
+import { ICON_MAP, LOCAL_STORAGE_SAVED_NAME } from '../config/appConfig.js';
 import { escapeHtml } from '../utils/utils.js';
 
 export class Scoreboard {
@@ -80,7 +80,6 @@ export class Scoreboard {
 		}, timeout);
 	}
 
-
 	updateTreasureIcon(iconSrc, oldTreasureType) {
 		// Only update icons if treasure type changed
 		if (this.state.treasureType === oldTreasureType || !iconSrc) return;
@@ -131,18 +130,22 @@ export class Scoreboard {
 		const iconSrc = ICON_MAP.find((t) => t.key === this.state.treasureType)?.icon;
 
 		for (const p of addedPlayers) {
+			// Use saved name from localStorage for current player
+			const savedName = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
+			console.log('savedName', savedName);
+			const displayName = (p.id === this.state.myId) ? (savedName || p.name) : p.name;
 			const li = document.createElement('li');
 			li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
 			li.setAttribute('data-player-id', p.id);
 			li.innerHTML = `
-				<span class="${this.classes.scoreboardName}">${escapeHtml(p.name)}</span>
+				<span class="${this.classes.scoreboardName}">${escapeHtml(displayName)}</span>
 				<span class="${this.classes.scoreboardScore}">
 					<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
 					<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
 				</span>
 			`;
 			this.el.scoreboard.appendChild(li);
-			console.log('addJoinedPlayers', p.name);
+			console.log('addJoinedPlayers', displayName);
 		}
 	}
 

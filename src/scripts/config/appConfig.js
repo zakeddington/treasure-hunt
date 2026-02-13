@@ -12,3 +12,6 @@ export const ICON_MAP = [
 	{ key: 'potionGreen', label: 'Potion Green', icon: '/assets/images/icons/icon-potion-green.svg' },
 	{ key: 'boltBlue', label: 'Bolt Blue', icon: '/assets/images/icons/icon-bolt-blue.svg' },
 ];
+
+export const LOCAL_STORAGE_SAVED_NAME = 'treasureHunt_playerName';
+export const LOCAL_STORAGE_AUDIO_MUTED = 'treasureHunt_audioMuted';

@@ -1,10 +1,11 @@
+import { LOCAL_STORAGE_SAVED_NAME } from '../config/appConfig.js';
+
 export class PlayerNameManager {
 	constructor(config) {
 		this.socket = config.socket;
 
 		this.config = {
 			defaultName: 'Player Name',
-			localStorageKey: 'ttr_playerName',
 			nameMaxLength: 32,
 		};
 
@@ -28,7 +29,7 @@ export class PlayerNameManager {
 	}
 
 	init() {
-		const saved = localStorage.getItem(this.config.localStorageKey);
+		const saved = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
 		this.state.currentName = saved && saved.trim() ? saved : this.config.defaultName;
 		this.joinGame();
 	}
@@ -80,7 +81,7 @@ export class PlayerNameManager {
 			this.el.nameSpan = null;
 			if (shouldSave) {
 				this.state.currentName = newValue;
-				localStorage.setItem(this.config.localStorageKey, newValue);
+				localStorage.setItem(LOCAL_STORAGE_SAVED_NAME, newValue);
 				this.joinGame(); // Update server with new name
 			}
 		};
