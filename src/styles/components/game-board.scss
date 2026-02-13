@@ -112,6 +112,7 @@
 		gap: var(--spacing-xs);
 		justify-content: flex-end;
 		min-height: 60px;
+		pointer-events: none;
 		position: absolute;
 		right: 10px;
 		top: 5px;
