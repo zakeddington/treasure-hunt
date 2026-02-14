@@ -181,7 +181,7 @@ io.on('connection', (socket) => {
 		// Support both old format (string) and new format (object with name and score)
 		const isObject = typeof data === 'object' && data !== null;
 		const name = isObject ? data.name : data;
-		const score = isObject && typeof data.score === 'number' ? data.score : undefined;
+		const score = isObject && typeof data.score === 'number' ? data.score : 0;
 
 		const clean = String(name || '').trim().slice(0, 32) || 'Player';
 		const p = state.players.get(socket.id);

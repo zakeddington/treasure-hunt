@@ -93,9 +93,7 @@ export class Scoreboard {
 		// Full rebuild of the scoreboard (only called on first render)
 		this.el.scoreboard.innerHTML = '';
 		for (const p of players) {
-			// Use saved name and score from localStorage for current player
 			const displayName = (p.id === myId) ? this.playerNameManager.state.currentName : p.name;
-			const displayScore = (p.id === myId) ? this.playerNameManager.state.currentScore : p.score;
 			const li = document.createElement('li');
 			li.className = this.classes.scoreboardItem + (p.id === myId ? ` ${this.classes.currentPlayer}` : '');
 			li.setAttribute('data-player-id', p.id);
@@ -103,10 +101,14 @@ export class Scoreboard {
 				<span class="${this.classes.scoreboardName}">${escapeHtml(displayName)}</span>
 				<span class="${this.classes.scoreboardScore}">
 					<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
-					<span class="${this.classes.scoreboardScorePts}">${displayScore}</span>
+					<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
 				</span>
 			`;
 			this.el.scoreboard.appendChild(li);
+			// Save server score to localStorage for current player (enables persistence during page refresh)
+			if (p.id === myId) {
+				this.playerNameManager.saveScore(p.score);
+			}
 		}
 	}
 
@@ -129,11 +131,8 @@ export class Scoreboard {
 		const iconSrc = ICON_MAP.find((t) => t.key === this.state.treasureType)?.icon;
 
 		for (const p of addedPlayers) {
-			// Use saved name and score from localStorage for current player
 			const savedName = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
-			const savedScore = localStorage.getItem(LOCAL_STORAGE_SAVED_SCORE);
 			const displayName = (p.id === this.state.myId) ? (savedName || p.name) : p.name;
-			const displayScore = (p.id === this.state.myId) ? (savedScore ? parseInt(savedScore, 10) : p.score) : p.score;
 			const li = document.createElement('li');
 			li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
 			li.setAttribute('data-player-id', p.id);
@@ -141,10 +140,14 @@ export class Scoreboard {
 				<span class="${this.classes.scoreboardName}">${escapeHtml(displayName)}</span>
 				<span class="${this.classes.scoreboardScore}">
 					<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
-					<span class="${this.classes.scoreboardScorePts}">${displayScore}</span>
+					<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
 				</span>
 			`;
 			this.el.scoreboard.appendChild(li);
+			// Save server score to localStorage for current player
+			if (p.id === this.state.myId) {
+				this.playerNameManager.saveScore(p.score);
+			}
 		}
 	}
 

@@ -33,6 +33,7 @@ export class PlayerNameManager {
 		const saved = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
 		this.state.currentName = saved && saved.trim() ? saved : this.config.defaultName;
 
+		// Load score from localStorage to persist across page refreshes during gameplay
 		const savedScore = localStorage.getItem(LOCAL_STORAGE_SAVED_SCORE);
 		this.state.currentScore = savedScore ? parseInt(savedScore, 10) : 0;
 		if (isNaN(this.state.currentScore)) this.state.currentScore = 0;
@@ -41,9 +42,10 @@ export class PlayerNameManager {
 	}
 
 	joinGame() {
+		// Send both name and score - server will decide whether to accept the score based on game phase
 		this.socket.emit('join', {
 			name: this.state.currentName,
-			score: this.state.currentScore
+			score: this.state.currentScore,
 		});
 	}
 
@@ -60,6 +62,7 @@ export class PlayerNameManager {
 			nameSpan.addEventListener('click', () => this.startEditMode(nameSpan));
 		});
 	}
+
 
 	startEditMode(nameSpan) {
 		if (this.el.nameSpan) return; // Prevent multiple edits
@@ -91,10 +94,8 @@ export class PlayerNameManager {
 			if (shouldSave) {
 				this.state.currentName = newValue;
 				localStorage.setItem(LOCAL_STORAGE_SAVED_NAME, newValue);
-				this.socket.emit('join', {
-					name: newValue,
-					score: this.state.currentScore
-				});
+				// Only send name to server - server maintains authoritative scores
+				this.socket.emit('join', newValue);
 			}
 		};
 
