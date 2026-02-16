@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const { TREASURE_ICONS } = require('./config/appConfig.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,21 +22,6 @@ const maps = mapNames.map(name => ({
 	full: `/assets/images/${name}.jpg`,
 	thumb: `/assets/images/thumbs/${name}.jpg`,
 }));
-
-const treasureTypes = {
-	gem: '/assets/images/icons/icon-gem.svg',
-	coin: '/assets/images/icons/icon-coin.svg',
-	star: '/assets/images/icons/icon-star.svg',
-	heart: '/assets/images/icons/icon-heart.svg',
-	crown: '/assets/images/icons/icon-crown.svg',
-	trophy: '/assets/images/icons/icon-trophy.svg',
-	chest: '/assets/images/icons/icon-chest.svg',
-	coinBag: '/assets/images/icons/icon-coin-bag.svg',
-	potionRed: '/assets/images/icons/icon-potion-red.svg',
-	potionBlue: '/assets/images/icons/icon-potion-blue.svg',
-	potionGreen: '/assets/images/icons/icon-potion-green.svg',
-	boltBlue: '/assets/images/icons/icon-bolt-blue.svg',
-};
 
 const state = {
 	phase: 'lobby',
@@ -91,13 +77,15 @@ function rand(min, max) {
 
 function spawnTreasure() {
 	const id = Math.random().toString(36).slice(2);
+	const defaultIcon = TREASURE_ICONS.find(t => t.key === 'gem')?.icon;
+	const selectedIcon = TREASURE_ICONS.find(t => t.key === state.treasureType)?.icon || defaultIcon;
 	state.treasure = {
 		id,
 		x: rand(0.12, 0.88),
 		y: rand(0.18, 0.82),
 		size: rand(0.10, 0.14),
 		spawnedAt: Date.now(),
-		icon: treasureTypes[state.treasureType] || treasureTypes['gem'],
+		icon: selectedIcon,
 	};
 	state.winnerSocketId = null;
 	state.phase = 'playing';
@@ -172,7 +160,7 @@ io.on('connection', (socket) => {
 	socket.on('setTreasureType', (value) => {
 		if (state.phase !== 'lobby' && state.phase !== 'ended') return;
 		const key = String(value || '').trim();
-		if (!treasureTypes[key]) return;
+		if (!TREASURE_ICONS.some(t => t.key === key)) return;
 		state.treasureType = key;
 		broadcastState();
 	});

@@ -1,4 +1,4 @@
-import { ICON_MAP, LOCAL_STORAGE_AUDIO_MUTED } from '../config/appConfig';
+import { TREASURE_ICONS, LOCAL_STORAGE_AUDIO_MUTED } from '../config/appConfig';
 
 export class SettingsDrawer {
 	constructor(config) {
@@ -264,7 +264,7 @@ export class SettingsDrawer {
 	renderTreasurePicker() {
 		if (!this.el.treasurePicker) return;
 		this.el.treasurePicker.innerHTML = '';
-		for (const treasure of ICON_MAP) {
+		for (const treasure of TREASURE_ICONS) {
 			const btn = document.createElement('button');
 			btn.type = 'button';
 			btn.className = this.classes.elTreasureItem;

@@ -1,4 +1,4 @@
-import { ICON_MAP } from '../config/appConfig.js';
+import { TREASURE_ICONS } from '../config/appConfig.js';
 import { Player } from './Player.js';
 
 export class Scoreboard {
@@ -32,7 +32,7 @@ export class Scoreboard {
 			timeout = this.config.animSpeedTreasure + this.config.animSpeedScore;
 		}
 
-		const iconSrc = ICON_MAP.find((t) => t.key === treasureType)?.icon;
+		const iconSrc = TREASURE_ICONS.find((t) => t.key === treasureType)?.icon;
 
 		const oldTreasureType = this.state.treasureType;
 		const oldMyId = this.state.myId;

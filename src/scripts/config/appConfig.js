@@ -1,4 +1,4 @@
-export const ICON_MAP = [
+const TREASURE_ICONS = [
 	{ key: 'gem', label: 'Gem', icon: '/assets/images/icons/icon-gem.svg' },
 	{ key: 'coin', label: 'Coin', icon: '/assets/images/icons/icon-coin.svg' },
 	{ key: 'star', label: 'Star', icon: '/assets/images/icons/icon-star.svg' },
@@ -13,6 +13,19 @@ export const ICON_MAP = [
 	{ key: 'boltBlue', label: 'Bolt Blue', icon: '/assets/images/icons/icon-bolt-blue.svg' },
 ];
 
-export const LOCAL_STORAGE_SAVED_NAME = 'treasureHunt_playerName';
-export const LOCAL_STORAGE_SAVED_SCORE = 'treasureHunt_playerScore';
-export const LOCAL_STORAGE_AUDIO_MUTED = 'treasureHunt_audioMuted';
+const LOCAL_STORAGE_SAVED_NAME = 'treasureHunt_playerName';
+const LOCAL_STORAGE_SAVED_SCORE = 'treasureHunt_playerScore';
+const LOCAL_STORAGE_AUDIO_MUTED = 'treasureHunt_audioMuted';
+
+// CommonJS exports for Node.js/server use
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports = {
+		TREASURE_ICONS,
+		LOCAL_STORAGE_SAVED_NAME,
+		LOCAL_STORAGE_SAVED_SCORE,
+		LOCAL_STORAGE_AUDIO_MUTED,
+	};
+}
+
+// ES6 exports for browser/bundler use
+export { TREASURE_ICONS, LOCAL_STORAGE_SAVED_NAME, LOCAL_STORAGE_SAVED_SCORE, LOCAL_STORAGE_AUDIO_MUTED };
