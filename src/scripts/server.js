@@ -41,7 +41,7 @@ const state = {
 	phase: 'lobby',
 	players: new Map(),
 	round: 0,
-	maxRounds: 10,
+	maxRounds: 11,
 	roundLength: 30000, // ms
 	treasure: null,
 	winnerSocketId: null,
