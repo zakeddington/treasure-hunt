@@ -1,30 +1,21 @@
-import { ICON_MAP, LOCAL_STORAGE_SAVED_NAME, LOCAL_STORAGE_SAVED_SCORE } from '../config/appConfig.js';
-import { escapeHtml } from '../utils/utils.js';
+import { ICON_MAP } from '../config/appConfig.js';
+import { Player } from './Player.js';
 
 export class Scoreboard {
 	constructor(elScoreboard, config) {
+		this.socket = config.socket;
+
 		this.config = {
 			animSpeedTreasure: config.animSpeedTreasure,
 			animSpeedScore: 900, // ms
-		}
-
-		this.classes = {
-			scoreboardItem: 'scoreboard--item',
-			currentPlayer: 'current-player',
-			scoreboardName: 'scoreboard--item-name',
-			scoreboardScore: 'scoreboard--item-score',
-			scoreboardScoreIcon: 'scoreboard--item-score-icon',
-			scoreboardScorePts: 'scoreboard--item-score-pts',
-			animScore: 'anim-score',
 		};
 
 		this.el = {
 			scoreboard: elScoreboard,
-		}
+		};
 
-		this.playerNameManager = config.playerNameManager;
 		this.state = {
-			players: [],
+			players: new Map(),
 			treasureType: null,
 			myId: null,
 			isInitialized: false,
@@ -43,177 +34,106 @@ export class Scoreboard {
 
 		const iconSrc = ICON_MAP.find((t) => t.key === treasureType)?.icon;
 
-		// Save old state before updating
-		const oldPlayers = this.state.players;
 		const oldTreasureType = this.state.treasureType;
 		const oldMyId = this.state.myId;
 		const wasInitialized = this.state.isInitialized;
 
-		// Update state immediately for next render
-		this.state.players = [...players];
 		this.state.treasureType = treasureType;
 		this.state.myId = myId;
-		this.state.isInitialized = true;
 
 		setTimeout(() => {
-			// Full rebuild only on first render
 			if (!wasInitialized) {
 				this.rebuild(players, myId, iconSrc);
+				this.state.isInitialized = true;
 			} else {
-				// Surgical updates for subsequent renders
 				this.updateTreasureIcon(iconSrc, oldTreasureType);
-				this.removeLeftPlayers(players, oldPlayers);
-				this.addJoinedPlayers(players, oldPlayers);
+				this.removeLeftPlayers(players);
+				this.addJoinedPlayers(players, iconSrc, myId);
 				this.updateCurrentPlayerClass(myId, oldMyId);
-				this.updateScores(players, oldPlayers);
-				this.updatePlayerNames(players, oldPlayers);
+				this.updateScores(players);
+				this.updatePlayerNames(players);
 			}
 
-			// Apply win animation if needed
 			if (winnerSocketId) {
 				this.applyWinAnimation(winnerSocketId);
 			}
-
-			// Enable click-to-edit on current player's name
-			this.playerNameManager.enableScoreboardEditing(this.el.scoreboard, myId);
 		}, timeout);
 	}
 
 	updateTreasureIcon(iconSrc, oldTreasureType) {
-		// Only update icons if treasure type changed
 		if (this.state.treasureType === oldTreasureType || !iconSrc) return;
-
-		const icons = this.el.scoreboard.querySelectorAll(`img.${this.classes.scoreboardScoreIcon}`);
-		for (const img of icons) {
-			img.src = iconSrc;
+		for (const player of this.state.players.values()) {
+			player.updateTreasureIcon(iconSrc);
 		}
 	}
 
 	rebuild(players, myId, iconSrc) {
-		// Full rebuild of the scoreboard (only called on first render)
 		this.el.scoreboard.innerHTML = '';
+		this.state.players.clear();
+
 		for (const p of players) {
-			const displayName = (p.id === myId) ? this.playerNameManager.state.currentName : p.name;
-			const li = document.createElement('li');
-			li.className = this.classes.scoreboardItem + (p.id === myId ? ` ${this.classes.currentPlayer}` : '');
-			li.setAttribute('data-player-id', p.id);
-			li.innerHTML = `
-				<span class="${this.classes.scoreboardName}">${escapeHtml(displayName)}</span>
-				<span class="${this.classes.scoreboardScore}">
-					<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
-					<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
-				</span>
-			`;
-			this.el.scoreboard.appendChild(li);
-			// Save server score to localStorage for current player (enables persistence during page refresh)
-			if (p.id === myId) {
-				this.playerNameManager.saveScore(p.score);
-			}
+			const playerComponent = this.createPlayer(p, iconSrc, p.id === myId);
+			this.state.players.set(p.id, playerComponent);
+			this.el.scoreboard.appendChild(playerComponent.getElement());
 		}
 	}
 
-	removeLeftPlayers(players, oldPlayers) {
-		// Remove players who have left the game
-		const leftPlayerIds = oldPlayers
-			.map((p) => p.id)
-			.filter((id) => !players.some((p) => p.id === id));
+	createPlayer(player, iconSrc, isCurrent) {
+		return new Player(player, {
+			iconSrc,
+			isCurrent,
+			socket: this.socket,
+		});
+	}
 
-		for (const id of leftPlayerIds) {
-			const li = this.el.scoreboard.querySelector(`[data-player-id="${id}"]`);
-			if (li) li.remove();
+	removeLeftPlayers(players) {
+		const ids = new Set(players.map((p) => p.id));
+		for (const [id, playerComponent] of this.state.players.entries()) {
+			if (ids.has(id)) continue;
+			const el = playerComponent.getElement();
+			if (el && el.parentNode) el.parentNode.removeChild(el);
+			this.state.players.delete(id);
 		}
 	}
 
-	addJoinedPlayers(players, oldPlayers) {
-		// Find players that are in new players but not in oldPlayers
-		const addedPlayers = players.filter((p) => !oldPlayers.some((op) => op.id === p.id));
-
-		const iconSrc = ICON_MAP.find((t) => t.key === this.state.treasureType)?.icon;
-
-		for (const p of addedPlayers) {
-			const savedName = localStorage.getItem(LOCAL_STORAGE_SAVED_NAME);
-			const displayName = (p.id === this.state.myId) ? (savedName || p.name) : p.name;
-			const li = document.createElement('li');
-			li.className = this.classes.scoreboardItem + (p.id === this.state.myId ? ` ${this.classes.currentPlayer}` : '');
-			li.setAttribute('data-player-id', p.id);
-			li.innerHTML = `
-				<span class="${this.classes.scoreboardName}">${escapeHtml(displayName)}</span>
-				<span class="${this.classes.scoreboardScore}">
-					<img src="${iconSrc}" alt="Treasure icon" class="${this.classes.scoreboardScoreIcon}" />
-					<span class="${this.classes.scoreboardScorePts}">${p.score}</span>
-				</span>
-			`;
-			this.el.scoreboard.appendChild(li);
-			// Save server score to localStorage for current player
-			if (p.id === this.state.myId) {
-				this.playerNameManager.saveScore(p.score);
-			}
+	addJoinedPlayers(players, iconSrc, myId) {
+		for (const p of players) {
+			if (this.state.players.has(p.id)) continue;
+			const playerComponent = this.createPlayer(p, iconSrc, p.id === myId);
+			this.state.players.set(p.id, playerComponent);
+			this.el.scoreboard.appendChild(playerComponent.getElement());
 		}
 	}
 
 	updateCurrentPlayerClass(myId, oldMyId) {
-		// Update current player highlighting if the current player changed
 		if (myId === oldMyId) return;
-
-		// Remove old current-player class
-		if (oldMyId) {
-			const oldLi = this.el.scoreboard.querySelector(`[data-player-id="${oldMyId}"]`);
-			if (oldLi) oldLi.classList.remove(this.classes.currentPlayer);
+		if (oldMyId && this.state.players.has(oldMyId)) {
+			this.state.players.get(oldMyId).setCurrent(false);
 		}
-
-		// Add current-player class to new current player
-		if (myId) {
-			const newLi = this.el.scoreboard.querySelector(`[data-player-id="${myId}"]`);
-			if (newLi) newLi.classList.add(this.classes.currentPlayer);
+		if (myId && this.state.players.has(myId)) {
+			this.state.players.get(myId).setCurrent(true);
 		}
 	}
 
-	updateScores(players, oldPlayers) {
+	updateScores(players) {
 		for (const p of players) {
-			const oldPlayer = oldPlayers.find((op) => op.id === p.id);
-			if (!oldPlayer) continue;
-
-			const li = this.el.scoreboard.querySelector(`[data-player-id="${p.id}"]`);
-			if (!li) continue;
-
-			// Update score only if it changed
-			if (p.score !== oldPlayer.score) {
-				const scoreSpan = li.querySelector(`span.${this.classes.scoreboardScorePts}`);
-				if (scoreSpan) {
-					scoreSpan.textContent = String(p.score);
-				}
-				// Save to localStorage if this is the current player
-				if (p.id === this.state.myId) {
-					this.playerNameManager.saveScore(p.score);
-				}
-			}
+			const playerComponent = this.state.players.get(p.id);
+			if (!playerComponent) continue;
+			playerComponent.updateScore(p.score);
 		}
 	}
 
-	updatePlayerNames(players, oldPlayers) {
+	updatePlayerNames(players) {
 		for (const p of players) {
-			const oldPlayer = oldPlayers.find((op) => op.id === p.id);
-			if (!oldPlayer) continue;
-
-			const li = this.el.scoreboard.querySelector(`[data-player-id="${p.id}"]`);
-			if (!li) continue;
-
-			// Update name only if it changed
-			if (p.name !== oldPlayer.name) {
-				const nameSpan = li.querySelector(`span.${this.classes.scoreboardName}`);
-				if (nameSpan) {
-					nameSpan.textContent = p.name;
-				}
-			}
+			const playerComponent = this.state.players.get(p.id);
+			if (!playerComponent) continue;
+			playerComponent.updateName(p.name);
 		}
 	}
 
 	applyWinAnimation(winnerSocketId) {
-		const winnerLi = this.el.scoreboard.querySelector(`[data-player-id="${winnerSocketId}"]`);
-		if (!winnerLi || winnerLi.classList.contains(this.classes.animScore)) return;
-
-		winnerLi.classList.add(this.classes.animScore);
-		setTimeout(() => winnerLi.classList.remove(this.classes.animScore), this.config.animSpeedScore);
+		const playerComponent = this.state.players.get(winnerSocketId);
+		if (!playerComponent) return;
+		playerComponent.playWinAnimation(this.config.animSpeedScore);
 	}
-
 }

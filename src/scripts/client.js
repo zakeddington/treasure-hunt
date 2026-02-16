@@ -1,5 +1,4 @@
 
-import { PlayerNameManager } from './components/PlayerNameManager.js';
 import { Scoreboard } from './components/Scoreboard.js';
 import { SettingsDrawer } from './components/SettingsDrawer.js';
 import { Banner } from './components/Banner.js';
@@ -32,7 +31,6 @@ const ClientApp = {
 		};
 
 		this.components = {
-			playerNameManager: null,
 			scoreboard: null,
 			settingsDrawer: null,
 			banner: null,
@@ -42,13 +40,9 @@ const ClientApp = {
 	},
 
 	initComponents() {
-		this.components.playerNameManager = new PlayerNameManager({
-			socket: this.socket,
-		});
-
 		this.components.scoreboard = new Scoreboard(this.el.scoreBoard, {
 			animSpeedTreasure: this.config.animSpeedTreasure,
-			playerNameManager: this.components.playerNameManager,
+			socket: this.socket,
 		});
 
 		this.components.settingsDrawer = new SettingsDrawer({
