@@ -40,8 +40,9 @@ export class Gameboard {
 			currentTreasureId: null,
 			timerTimeoutId: null,
 			audioCtx: null,
-			gameOverAudio: null,
-			treaureFoundAudio: null,
+			audioUnlocked: false,
+			gameOverBuffer: null,
+			treasureFoundBuffer: null,
 			isFinalRound: false,
 			serverTimeOffset: 0,
 			roundEndsAt: null,
@@ -104,6 +105,7 @@ export class Gameboard {
 	// Initialize audio from a user interaction (click/touch) to enable autoplay on iOS
 	enableAudio() {
 		const unlock = () => {
+			this.state.audioUnlocked = true;
 			this.initializeAudioContext();
 		};
 		document.addEventListener('pointerdown', unlock, { once: true, passive: true });
@@ -122,20 +124,42 @@ export class Gameboard {
 		this.state.isFinalRound = round === maxRounds;
 	}
 
-	initializeAudioContext() {
-		this.ensureAudioContext();
-		// Preload all audio elements by attempting to load them
-		if (!this.state.gameOverAudio) {
-			this.state.gameOverAudio = new Audio(this.config.audioGameOverSrc);
-			this.state.gameOverAudio.preload = 'auto';
-			this.state.gameOverAudio.volume = this.config.volume;
-			this.state.gameOverAudio.load();
+	async initializeAudioContext() {
+		try {
+			// Create AudioContext if needed
+			if (!this.state.audioCtx) {
+				const AudioCtx = window.AudioContext || window.webkitAudioContext;
+				if (!AudioCtx) {
+					console.warn('Web Audio API not supported');
+					return;
+				}
+				this.state.audioCtx = new AudioCtx();
+			}
+
+			// Resume context on user gesture (required for iOS)
+			if (this.state.audioCtx.state === 'suspended') {
+				await this.state.audioCtx.resume();
+			}
+
+			// Load audio buffers
+			await Promise.all([
+				this.loadAudioBuffer(this.config.audioGameOverSrc, 'gameOverBuffer'),
+				this.loadAudioBuffer(this.config.audioTreasureFoundSrc, 'treasureFoundBuffer'),
+			]);
+		} catch (e) {
+			console.warn('Failed to initialize audio:', e);
 		}
-		if (!this.state.treasureFoundAudio) {
-			this.state.treasureFoundAudio = new Audio(this.config.audioTreasureFoundSrc);
-			this.state.treasureFoundAudio.preload = 'auto';
-			this.state.treasureFoundAudio.volume = this.config.volume;
-			this.state.treasureFoundAudio.load();
+	}
+
+	async loadAudioBuffer(url, bufferName) {
+		if (this.state[bufferName]) return; // Already loaded
+
+		try {
+			const response = await fetch(url);
+			const arrayBuffer = await response.arrayBuffer();
+			this.state[bufferName] = await this.state.audioCtx.decodeAudioData(arrayBuffer);
+		} catch (e) {
+			console.warn(`Failed to load audio ${url}:`, e);
 		}
 	}
 
@@ -183,35 +207,39 @@ export class Gameboard {
 		this.el.timer.classList.add(this.classes.hidden);
 	}
 
-	ensureAudioContext() {
-		if (!this.state.audioCtx) {
-			const AudioCtx = window.AudioContext || window.webkitAudioContext;
-			if (AudioCtx) {
-				try {
-					this.state.audioCtx = new AudioCtx();
-				} catch (e) {
-					console.warn('Failed to create audio context:', e);
-				}
-			}
+	playAudioBuffer(buffer) {
+		if (!this.state.audioCtx || !buffer) return;
+
+		try {
+			const source = this.state.audioCtx.createBufferSource();
+			source.buffer = buffer;
+
+			// Create gain node for volume control
+			const gainNode = this.state.audioCtx.createGain();
+			gainNode.gain.value = this.config.volume;
+
+			// Connect: source -> gain -> destination
+			source.connect(gainNode);
+			gainNode.connect(this.state.audioCtx.destination);
+
+			source.start(0);
+		} catch (e) {
+			console.warn('Audio playback failed:', e);
 		}
 	}
 
 	playGameOver() {
 		if (this.settingsDrawer.isAudioMuted()) return;
+		if (!this.state.audioUnlocked) return;
 
-		this.state.gameOverAudio.currentTime = 0;
-		this.state.gameOverAudio.play().catch((e) => {
-			console.warn('Game over audio playback failed:', e);
-		});
+		this.playAudioBuffer(this.state.gameOverBuffer);
 	}
 
 	playTreasureFound() {
 		if (this.settingsDrawer.isAudioMuted()) return;
+		if (!this.state.audioUnlocked) return;
 
-		this.state.treasureFoundAudio.currentTime = 0;
-		this.state.treasureFoundAudio.play().catch((e) => {
-			console.warn('Treasure found audio playback failed:', e);
-		});
+		this.playAudioBuffer(this.state.treasureFoundBuffer);
 	}
 
 	clearTreasure() {
