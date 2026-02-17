@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 const mapNames = [
 	'map-01', 'map-02', 'map-03', 'map-04', 'map-05', 'map-06', 'map-07', 'map-08',
 	'map-09', 'map-10', 'map-11', 'map-12', 'map-13', 'map-14', 'map-15', 'map-16',
-	'map-17', 'map-18',
+	'map-17', 'map-18', 'map-19', 'map-20', 'map-21',
 ];
 
 const maps = mapNames.map(name => ({
